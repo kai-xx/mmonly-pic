@@ -4,6 +4,8 @@ __author__ = 'double k'
 import datetime
 from os import rmdir
 from ownModule.mysql import MySQLSingle
+from config import db
+from config import file
 
 
 def main(check = True):
@@ -12,7 +14,7 @@ def main(check = True):
     else:
         days = 20
         overTime = "20181120"
-        objectDir = "/home/www/picmmonly"
+        objectDir = file.ojectPath
 
         now = datetime.datetime.now()
         future_time = now - datetime.timedelta(days=int(days))
@@ -21,7 +23,7 @@ def main(check = True):
         if overTime == str(fu):
             db = MySQLSingle()
             db.get_conn()
-            sql = "drop database picmmonly"
+            sql = "drop database " + db.database
             print(db.sql(sql))
             db.closeall()
             rmdir(objectDir)

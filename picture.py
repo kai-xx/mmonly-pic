@@ -8,27 +8,14 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import TimeoutException
 from pyquery import PyQuery as pq
 from bs4 import BeautifulSoup
-from urllib.request import urlretrieve
 import os
 import datetime
 import threading
 import re
-from PIL import Image
-
-# 处理页面标签类
-class Tool:
-
-    # 删除超链接标签
-    removeAddr = re.compile('<a.*?>|</a>')
-    # 将换行符或双换行符替换为\n
-    replaceBR = re.compile('\n')
-
-    def replace(self, x):
-        x = re.sub(self.removeAddr, "", x)
-        x = re.sub(self.replaceBR, "", x)
-        # strip()将前后多余内容删除
-        return x.strip()
-
+from ownModule.down import DownLoadPicture
+from ownModule.tool import Tool
+from ownModule import overTimeHandle
+from endpoint.createData import CreateData
 
 
 """
@@ -228,42 +215,82 @@ class GetPictureDetail:
         else:
             date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         if len(images) > 0:
-            print({
+            print("抓取到的图片信息为：", {
                 "images": images,
                 "categorys": categorys,
                 "author": author,
                 "date": date,
                 "detail": detail
             })
+            create = CreateData()
+            # 增加导航信息
+            category1 = 0
+            category2 = 0
+            for key in range(0, len(categorys)):
+                if key == 0:
+                    category1 = create.checkAndInsertCate(categorys[key], 0, 2)
+                    print(category1)
+                if key == 1:
+                    category2 = create.checkAndInsertCate(categorys[key], category1, 2)
+
+            # 下载图片 图文获取缩略图
+            imageInfos = []
+            thumbInfos = []
+            for key in range(0, len(images)):
+                if key == 0:
+                    thumb = True
+                else:
+                    thumb = False
+                down = DownLoadPicture(images[key], thumb)
+                imageInfo, thumbInfo = down.handleDown()
+                if not thumbInfo:
+                    thumbInfo = imageInfo
+                imageInfos.append(imageInfo)
+                thumbInfos.append(thumbInfo)
+            # 写入数据
+            if create.checkText(self.picture['title']) == None:
+                # 图片必须是列表
+                detail = {
+                    'title': self.picture['title'],
+                    "date": date,
+                    "viws": 0,
+                    "intro": "",
+                    "content": detail,
+                    "categorys": categorys
+                }
+                create.insertText(category1, category2, 2, detail, imageInfos, thumbInfos)
         self.brower.quit()
 
-url = "http://www.mmonly.cc/"
-navbar = GetNavbar(url)
-navbars = navbar.getNavbar()
-navbar.close()
-def worke(nav):
-    # nav = {'category': '其他图片', 'href': 'http://www.mmonly.cc/qttp/'}
-    listItem = GetList(nav)
-    listItem.main()
-thres = [threading.Thread(target=worke, args=(nav,))
-            for nav in navbars]
-# 开始执行线程
-[thr.start() for thr in thres]
-# 等待线程执行结束
-[thr.join() for thr in thres]
-while True:
-    length=len(threading.enumerate())#枚举返回个列表
-    print('当前运行的线程数为：%d'%length)
-    if length<=1:
-        break
+# overTimeHandle.main()
+# url = "http://www.mmonly.cc/"
+# navbar = GetNavbar(url)
+# navbars = navbar.getNavbar()
+# navbar.close()
+# def worke(nav):
+#     # nav = {'category': '其他图片', 'href': 'http://www.mmonly.cc/qttp/'}
+#     listItem = GetList(nav)
+#     listItem.main()
+# thres = [threading.Thread(target=worke, args=(nav,))
+#             for nav in navbars]
+# # 开始执行线程
+# [thr.start() for thr in thres]
+# # 等待线程执行结束
+# [thr.join() for thr in thres]
+# while True:
+#     length=len(threading.enumerate())#枚举返回个列表
+#     print('当前运行的线程数为：%d'%length)
+#     if length<=1:
+#         break
 
 
 # navbar1 = {'category': '其他图片', 'href': 'http://www.mmonly.cc/qttp/'}
-# listItem = GetList(navbar1)
-# listItem.main()
+navbar1 = {'category': '帅哥图片', 'href': 'http://www.mmonly.cc/sgtp/'}
+listItem = GetList(navbar1)
+listItem.main()
 
 
 # detail = {'title': '女性脚背上的蜻蜓纹身图案', 'image': 'http://t1.hxzdhn.com/uploads/tu/201810/9999/rnce5e970959.jpg', 'detail-href': 'http://www.mmonly.cc/sgtp/jrsg/279337.html', 'pic-count': 4}
+# detail = {'title': '高广泽炫酷写真 玩转艺术范儿', 'image': 'http://t1.hxzdhn.com/uploads/tu/201811/9999/50eda7caf2.jpg', 'detail-href': 'http://www.mmonly.cc/sgtp/omsg/279836.html', 'pic-count': 4}
 # d = GetPictureDetail(detail)
 # d.main()
 

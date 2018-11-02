@@ -11,10 +11,9 @@ from pyquery import PyQuery as pq
 import threading
 from bs4 import BeautifulSoup
 from ownModule.down import DownLoadPicture
-from ownModule.mysql import MySQLSingle
 from ownModule.tool import Tool
 from ownModule import overTimeHandle
-
+from endpoint.createData import CreateData
 class GetNav:
     def __init__(self, baseUrl):
         self.baseUrl = baseUrl
@@ -68,7 +67,7 @@ class GetTextList:
             }
             self.count += 1
             print("当前第", self.count, "获取的图文信息为：", list)
-            detail = GetTextDetail(detailHref)
+            detail = GetTextDetail(detailHref, list)
             detail.main()
     def waitForGetAllData(self):
         page = 2
@@ -108,12 +107,13 @@ class GetTextList:
         print("--------", "结束获取图文列表信息，共获取到", self.count, "条数据--------")
 
 class GetTextDetail:
-    def __init__(self, baseUrl):
+    def __init__(self, baseUrl, listInfo):
         self.baseUrl = baseUrl
         self.browes = None
         self.html = None
         self.detailhtml = None
         self.count = 0
+        self.listInfo = listInfo
     def getCategorys(self):
         soup = BeautifulSoup(self.detailhtml, 'lxml')
         catItems = soup.select(".show-gps a")
@@ -165,17 +165,36 @@ class GetTextDetail:
             "categorys": categorys
         }
         print("获取到的信息信息为：", detail)
+        create = CreateData()
+        # 增加导航信息
+        category1 = 0
+        category2 = 0
+        for key in range(0, len(categorys)):
+            if key == 0:
+                category1 = create.checkAndInsertCate(categorys[key], 0, 1)
+                print(category1)
+            if key == 1:
+                category2 = create.checkAndInsertCate(categorys[key], category1, 1)
+        # 下载图片 图文获取缩略图
+        down = DownLoadPicture(self.listInfo['thumb-img'], True)
+        imageInfo, thumbInfo = down.handleDown()
+        if not thumbInfo:
+            thumbInfo = imageInfo
+        # 写入数据
+        if create.checkText(title) == None:
+            # 图片必须是列表
+            create.insertText(category1, category2, 1, detail, [imageInfo], [thumbInfo])
         self.browes.quit()
 
 #         图片下载demo
 # url = "http://t1.hxzdhn.com/uploads/tu/201706/9999/11df03cb01.jpg"
 # url = "http://t1.hxzdhn.com/mmonly/2014/201409/084/1.jpg"
 # url = "http://t1.hxzdhn.com/uploads/tu/201611/tt/2v3a1bcyckh.jpg"
-url = "http://t1.hxzdhn.com/mmonly/2011/201104/144/3.jpg"
-down = DownLoadPicture(url, True)
-a, b = down.handleDown()
-print(a)
-print(b)
+# url = "http://t1.hxzdhn.com/mmonly/2011/201104/144/3.jpg"
+# down = DownLoadPicture(url, True)
+# a, b = down.handleDown()
+# print(a)
+# print(b)
 
 # 数据库处理demo
 # db = MySQLSingle()
@@ -200,11 +219,16 @@ print(b)
 # [thr.join() for thr in thres]
 
 # 获取列表调试代码
-# url = "http://www.mmonly.cc/tstx/ylxw/"
-# listObj = GetTextList(url)
-# listObj.getHtml()
+url = "http://www.mmonly.cc/tstx/ylxw/"
+listObj = GetTextList(url)
+listObj.getHtml()
 
 # 获取详情信息调试代码
 # url = "http://www.mmonly.cc/tstx/ylxw/192333.html"
-# detailObj = GetTextDetail(url)
+# listInfo = {
+#                "title": "盘点娱乐圈女星透视装，若隐约现，小孩都看了都脸红！",
+#                "detail-href": "http://www.mmonly.cc/tstx/ylxw/192333.html",
+#                "thumb-img": "http://t1.hxzdhn.com/uploads/tu/201709/9999/rn7706ea40ca.jpeg"
+#             }
+# detailObj = GetTextDetail(url, listInfo)
 # detailObj.main()

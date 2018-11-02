@@ -45,36 +45,43 @@ class MySQLSingle(object):
 
 
     def add(self, sql):
+        print("执行sql为：", sql)
         try:
             self.cursor.execute(sql)
             self.conn.commit()
-            return self.cursor.lastrowid()
-        except:
+            print("数据添加成功，返回ID为: %d" % self.cursor.lastrowid)
+            return self.cursor.lastrowid
+        except Exception as e:
+            print('数据添加失败: %s' % e)
             # 如果发生错误则回滚
             self.conn.rollback()
             return False
 
     def save(self, sql, id):
+        print("执行sql为：", sql)
         try:
             self.cursor.execute(sql)
             self.conn.commit()
             return id
-        except:
+        except Exception as e:
+            print('File to connect database: %s' % e)
             # 如果发生错误则回滚
             self.conn.rollback()
             return False
     def getone(self, sql):
+        print("执行sql为：", sql)
         try:
             self.cursor.execute(sql)
             results = self.cursor.fetchone()
             return results
-        except:
+        except Exception as e:
+            print('File to connect database: %s' % e)
             return False
     def getall(self, sql):
+        print("执行sql为：", sql)
         try:
             self.cursor.execute(sql)
             results = self.cursor.fetchall()
-
             return results
         except Exception as e:
             print('File to connect database: %s' % e)

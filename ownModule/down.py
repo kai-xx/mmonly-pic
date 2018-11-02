@@ -15,12 +15,18 @@ class DownLoadPicture:
         self.thumb = thumb
 
     def destFile(self, path, thumb=""):
-        dir = "/uploads/allimg/" + datetime.datetime.now().strftime("%Y%m%d")
-        savePath = osPath.join(self.path + dir)
+        dirTime = datetime.datetime.now().strftime("%Y%m%d")
+        returnDir = "/uploads/allimg/" + dirTime
+        savePath = osPath.join(self.path , "uploads", "allimg", dirTime)
         if not osPath.exists(savePath):
             osMkdir(savePath)
         img = datetime.datetime.now().strftime("%Y%m%d%H%M%S") + path.split('/')[-1]
-        return osPath.join(savePath, thumb + img), osPath.join(dir, thumb+img)
+        if thumb:
+            returnDir = returnDir + "/" + thumb + "/" + img
+        else:
+            returnDir = returnDir + "/" + img
+
+        return osPath.join(savePath, thumb + img), returnDir
 
     def handleDown(self):
         try:
@@ -38,6 +44,8 @@ class DownLoadPicture:
                 "path": imgSavePath
             }
             img.close()
+            print("下载链接为：", self.url, "的图片信息为：", imgInfo)
+            print("下载链接为：", self.url, "的图片缩略图为：", thumbInfo)
             return imgInfo, thumbInfo
         except Exception as e:
             print("下载图片失败，失败链接为：", self.url, ",错误信息为：", e)
