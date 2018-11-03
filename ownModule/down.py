@@ -22,7 +22,7 @@ class DownLoadPicture:
             osMkdir(savePath)
         img = datetime.datetime.now().strftime("%Y%m%d%H%M%S") + path.split('/')[-1]
         if thumb:
-            returnDir = returnDir + "/" + thumb + "/" + img
+            returnDir = returnDir + "/" + thumb + img
         else:
             returnDir = returnDir + "/" + img
 

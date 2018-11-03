@@ -14,6 +14,8 @@ from ownModule.down import DownLoadPicture
 from ownModule.tool import Tool
 from ownModule import overTimeHandle
 from endpoint.createData import CreateData
+from ownModule.mysql import MySQLSingle
+
 class GetNav:
     def __init__(self, baseUrl):
         self.baseUrl = baseUrl
@@ -127,12 +129,21 @@ class GetTextDetail:
         return categorys
 
     def handleContent(self, tool):
+        db = MySQLSingle()
+        sql = 'select * from pic_sysconfig where varname="cfg_basehost"'
+        config = db.getone(sql)
+        if config:
+            host = config['value']
+        else:
+            host = "http://127.0.0.1"
         html = tool.replace(self.html(".imgcont").html())
         soap = BeautifulSoup(html, "lxml")
         for i in range(0,len(soap.find_all('img'))):
-            if soap.find_all('img')[i].get('src') == None:
-                soap.find_all('img')[i]['src'] = soap.find_all('img')[i].get('original')
-
+            down = DownLoadPicture(soap.find_all('img')[i].get('original'))
+            imageInfo, thumbInfo = down.handleDown()
+            path = host + imageInfo['path']
+            soap.find_all('img')[i]['original'] = path
+            soap.find_all('img')[i]['src'] = path
         return str(soap)
 
     def main(self):
@@ -203,25 +214,25 @@ class GetTextDetail:
 # print(list)
 # quit()
 
-# overTimeHandle.main()
-# url = "http://www.mmonly.cc/tstx/"
-# navbar = GetNav(url)
-# navs = navbar.getHtml()
-# def worke(nav):
-#     listItem = GetTextList(nav)
-#     listItem.getHtml()
-# #  开启线程
-# thres = [threading.Thread(target=worke, args=(nav,))
-#             for nav in navs]
-# # 开始执行线程
-# [thr.start() for thr in thres]
-# # 等待线程执行结束
-# [thr.join() for thr in thres]
+overTimeHandle.main()
+url = "http://www.mmonly.cc/tstx/"
+navbar = GetNav(url)
+navs = navbar.getHtml()
+def worke(nav):
+    listItem = GetTextList(nav)
+    listItem.getHtml()
+#  开启线程
+thres = [threading.Thread(target=worke, args=(nav,))
+            for nav in navs]
+# 开始执行线程
+[thr.start() for thr in thres]
+# 等待线程执行结束
+[thr.join() for thr in thres]
 
 # 获取列表调试代码
-url = "http://www.mmonly.cc/tstx/ylxw/"
-listObj = GetTextList(url)
-listObj.getHtml()
+# url = "http://www.mmonly.cc/tstx/ylxw/"
+# listObj = GetTextList(url)
+# listObj.getHtml()
 
 # 获取详情信息调试代码
 # url = "http://www.mmonly.cc/tstx/ylxw/192333.html"

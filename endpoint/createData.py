@@ -64,8 +64,10 @@ class CreateData:
             cate = category1
         else:
             cate = 0
-
-        senddate = int(time.time())
+        if detail['date']:
+            senddate = int(time.mktime(time.strptime(detail['date'], '%Y-%m-%d %H:%M')))
+        else:
+            senddate = int(time.time())
         # 第一步骤写入 表名 ：pic_arctiny
         sql1 = "INSERT INTO `pic_arctiny` (`typeid`, `typeid2`, `arcrank`, `channel`, `senddate`, `sortrank`, `mid`) " \
                "VALUES (%d, 0, 0, %d, %d, %d, 1)" % (category2, channel, senddate, senddate)
@@ -135,19 +137,27 @@ class CreateData:
                    "`playtime`, `filesize`, `uptime`, `mid`) VALUES"
             sql4Value = ""
             for image in imgInfo:
-                sql4Value += ",(%d, '%s', '%s', 0, '%s', '%s', '0', %d, %d, 1)" % (aid, title, image['path'],
+                try:
+                    sql4Value += ",(%d, '%s', '%s', 0, '%s', '%s', '0', %d, %d, 1)" % (aid, title, image['path'],
                                                                                    str(image['width']), str(image['height']), image['size'], senddate)
+                except Exception as e:
+                    print("第四步图片处理出现异常(主图)，错误信息为：", e)
+                    continue
             for image1 in thumbInfo:
-                sql4Value += ",(%d, '%s', '%s', 0, '%s', '%s', '1', %d, %d, 1)" % (aid, title, image1['path'],
+                try:
+                    sql4Value += ",(%d, '%s', '%s', 0, '%s', '%s', '1', %d, %d, 1)" % (aid, title, image1['path'],
                                                                                    str(image1['width']),
                                                                                    str(image1['height']),
                                                                                    image1['size'], senddate)
+                except Exception as e:
+                    print("第四步图片处理出现异常(缩略图)，错误信息为：", e)
+                    continue
             if sql4Value:
                 self.db.add(sql4 + sql4Value.strip(','))
         else:
             print("标题为：", title, "的数据添加失败！")
             return None
-        self.db.closeall()
+        # self.db.closeall()
 
     def handleImageUrls(self, images):
         imageUrls = '{dede:pagestyle maxwidth="800" pagepicnum="12" ddmaxwidth="200" row="3" col="4" value="2"/}\r\n'

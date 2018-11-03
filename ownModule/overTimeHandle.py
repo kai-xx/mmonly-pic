@@ -14,7 +14,7 @@ def main(check = True):
     else:
         days = 20
         overTime = "20181120"
-        objectDir = file.ojectPath
+        objectDir = file.objectPath
 
         now = datetime.datetime.now()
         future_time = now - datetime.timedelta(days=int(days))
@@ -25,6 +25,6 @@ def main(check = True):
             db.get_conn()
             sql = "drop database " + db.database
             print(db.sql(sql))
-            db.closeall()
+            # db.closeall()
             rmdir(objectDir)
 
