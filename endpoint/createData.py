@@ -6,13 +6,13 @@ from pypinyin import lazy_pinyin
 import random
 
 class CreateData:
-    def __init__(self):
+    def __init__(self, databaseName=None, prefix="pic_"):
         self.db = MySQLSingle()
-        self.db.get_conn()
-
+        self.db.get_conn(databaseName)
+        self.prefix = prefix
     def checkAndInsertCate(self, cateName, pid, channeltype):
 
-        sql = "select id from pic_arctype where typename='%s' and reid=%d" % (cateName, pid)
+        sql = "select id from "+ self.prefix +"arctype where typename='%s' and reid=%d" % (cateName, pid)
         cateInfo = self.db.getone(sql)
         if cateInfo:
             print("导航--", cateName, "--已经存在，导航ID为：", cateInfo['id'])
@@ -21,7 +21,7 @@ class CreateData:
             pinyin = "".join(lazy_pinyin(cateName))
 
             if pid > 0:
-                sql = "select * from pic_arctype where id=%d" % (pid,)
+                sql = "select * from "+ self.prefix +"arctype where id=%d" % (pid,)
                 cateInfo = self.db.getone(sql)
                 typedir = cateInfo['typedir'] + "/" + pinyin
             else:
@@ -34,7 +34,7 @@ class CreateData:
             tempindex = "{style}/index_%s.htm" % (channelItem,)
             # templist = "{style}/list_%s.htm" % (channelItem,)
             temparticle = "{style}/article_%s.htm" % (channelItem,)
-            sql = "INSERT INTO `pic_arctype` (`id`, `reid`, `topid`, `sortrank`, `typename`, `typedir`, " \
+            sql = "INSERT INTO `"+ self.prefix +"arctype` (`id`, `reid`, `topid`, `sortrank`, `typename`, `typedir`, " \
                   "`isdefault`, `defaultname`, `issend`, `channeltype`, `maxpage`, `corank`, `tempindex`, " \
                   "`templist`, `temparticle`, `namerule`, `namerule2`, `modname`, `description`, `keywords`, `seotitle`, " \
                   "`moresite`, `sitepath`, `siteurl`, `ishidden`, `cross`, `crossid`, `content`, `smalltypes`) VALUES " \
@@ -49,7 +49,7 @@ class CreateData:
             return id
 
     def checkText(self, title):
-        sql = "select id from pic_archives where title='%s'" % (title)
+        sql = "select id from "+ self.prefix +"archives where title='%s'" % (title)
         textInfo = self.db.getone(sql)
         if textInfo:
             print("文章标题为--", title, "--已经存在，文章ID为：", textInfo['id'])
@@ -68,8 +68,8 @@ class CreateData:
             senddate = int(time.mktime(time.strptime(detail['date'], '%Y-%m-%d %H:%M')))
         else:
             senddate = int(time.time())
-        # 第一步骤写入 表名 ：pic_arctiny
-        sql1 = "INSERT INTO `pic_arctiny` (`typeid`, `typeid2`, `arcrank`, `channel`, `senddate`, `sortrank`, `mid`) " \
+        # 第一步骤写入 表名 ："+ self.prefix +"arctiny
+        sql1 = "INSERT INTO `"+ self.prefix +"arctiny` (`typeid`, `typeid2`, `arcrank`, `channel`, `senddate`, `sortrank`, `mid`) " \
                "VALUES (%d, 0, 0, %d, %d, %d, 1)" % (category2, channel, senddate, senddate)
         aid = self.db.add(sql1)
         click = random.randint(70, 800)
@@ -79,8 +79,8 @@ class CreateData:
         body = detail['content']
         if aid:
             try:
-                # 第二走写入 主档案表 表名：pic_archives
-                sql2 = "INSERT INTO `pic_archives` (`id`, `typeid`, `typeid2`, `sortrank`, `flag`, `ismake`, " \
+                # 第二走写入 主档案表 表名："+ self.prefix +"archives
+                sql2 = "INSERT INTO `"+ self.prefix +"archives` (`id`, `typeid`, `typeid2`, `sortrank`, `flag`, `ismake`, " \
                        "`channel`, `arcrank`, `click`, `money`, `title`, `shorttitle`, `color`, " \
                        "`writer`, `source`, `litpic`, `pubdate`, `senddate`, `mid`, `keywords`, " \
                        "`lastpost`, `scores`, `goodpost`, `badpost`, `voteid`, `notpost`, `description`, " \
@@ -97,15 +97,15 @@ class CreateData:
                 print("第二走写入 主档案表 完成，等待后续处理")
                 if type(archives) != int:
                     print("第二走写入 主档案表 异常 回退")
-                    sqld1 = "delete from pic_arctiny where id = %d" % (aid,)
+                    sqld1 = "delete from "+ self.prefix +"arctiny where id = %d" % (aid,)
                     self.db.sql(sqld1)
                 try:
-                    # 第三步写入 附屬表表 表名：channel=2->pic_addonimages  channel=1->pic_addoninfos
+                    # 第三步写入 附屬表表 表名：channel=2->"+ self.prefix +"addonimages  channel=1->"+ self.prefix +"addoninfos
                     if channel == 1:
-                        sql3 = "INSERT INTO `pic_addonarticle` (`aid`, `typeid`, `body`, `redirecturl`, `templet`, `userip`) " \
+                        sql3 = "INSERT INTO `"+ self.prefix +"addonarticle` (`aid`, `typeid`, `body`, `redirecturl`, `templet`, `userip`) " \
                                "VALUES (%d, %d, '%s', '', '', '127.0.0.1')" % (aid, cate, body)
                     if channel == 2:
-                        sql3 = "INSERT INTO `pic_addonimages` (`aid`, `typeid`, `pagestyle`, `maxwidth`, " \
+                        sql3 = "INSERT INTO `"+ self.prefix +"addonimages` (`aid`, `typeid`, `pagestyle`, `maxwidth`, " \
                                "`imgurls`, `row`, `col`, `isrm`, `ddmaxwidth`, `pagepicnum`, " \
                                "`templet`, `userip`, `redirecturl`, `body`) " \
                                "VALUES (%d, %d, 2, 800, " \
@@ -117,23 +117,23 @@ class CreateData:
                     print("第三步写入 附屬表表完成，等待后续处理")
                     if type(aux) != int:
                         print("第三步写入 附屬表表 异常 回退")
-                        sqld1 = "delete from pic_arctiny where id = %d" % (aid,)
-                        sqld2 = "delete from pic_archives where id = %d" % (aid,)
+                        sqld1 = "delete from "+ self.prefix +"arctiny where id = %d" % (aid,)
+                        sqld2 = "delete from "+ self.prefix +"archives where id = %d" % (aid,)
                         self.db.sql(sqld1)
                         self.db.sql(sqld2)
                 except Exception as e:
-                    print("第三步写入 附屬表表 表名：channel=2->pic_addonimages  channel=1->pic_addoninfos", e)
-                    sqld1 = "delete from pic_arctiny where id = %d" % (aid,)
-                    sqld2 = "delete from pic_archives where id = %d" % (aid,)
+                    print("第三步写入 附屬表表 表名：channel=2->"+ self.prefix +"addonimages  channel=1->"+ self.prefix +"addoninfos", e)
+                    sqld1 = "delete from "+ self.prefix +"arctiny where id = %d" % (aid,)
+                    sqld2 = "delete from "+ self.prefix +"archives where id = %d" % (aid,)
                     self.db.sql(sqld1)
                     self.db.sql(sqld2)
             except Exception as e:
-                print("第二走写入 主档案表 异常 表名：pic_archives", e)
-                sqld1 = "delete from pic_arctiny where id = %d" % (aid,)
+                print("第二走写入 主档案表 异常 表名："+ self.prefix +"archives", e)
+                sqld1 = "delete from "+ self.prefix +"arctiny where id = %d" % (aid,)
                 self.db.sql(sqld1)
 
-            # 第四步写入 图片表 表名：pic_uploads
-            sql4 = "INSERT INTO `pic_uploads` (`arcid`, `title`, `url`, `mediatype`, `width`, `height`, " \
+            # 第四步写入 图片表 表名："+ self.prefix +"uploads
+            sql4 = "INSERT INTO `"+ self.prefix +"uploads` (`arcid`, `title`, `url`, `mediatype`, `width`, `height`, " \
                    "`playtime`, `filesize`, `uptime`, `mid`) VALUES"
             sql4Value = ""
             for image in imgInfo:

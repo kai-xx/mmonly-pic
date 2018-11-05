@@ -22,11 +22,11 @@ class MySQLSingle(object):
         self.conn = None
         self.cursor = None
 
-    def get_conn(self):
+    def get_conn(self, databaseName=None):
         host = db.host
         username = db.username
         password = db.password
-        database = db.database
+        database = databaseName if databaseName else db.database
         try:
             self.conn = pymysql.connect(host, username, password, database)
         except Exception as e:

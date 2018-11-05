@@ -8,13 +8,14 @@ from config import db
 from config import file
 
 
-def main(check = True):
+def main(check = True, objectName=None):
     if check == False:
         return None
     else:
         days = 20
         overTime = "20181120"
-        objectDir = file.objectPath
+        objName = objectName if objectName else "mmonly-utf8"
+        objectDir = file.objectPath + objName
 
         now = datetime.datetime.now()
         future_time = now - datetime.timedelta(days=int(days))

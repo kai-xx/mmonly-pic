@@ -9,9 +9,10 @@ from urllib.request import urlretrieve
 from config import file
 
 class DownLoadPicture:
-    def __init__(self, url="", thumb=False):
+    def __init__(self, url="", thumb=False, objectName=None):
         self.url = url
-        self.path = file.basePath
+        objName = objectName if objectName else "mmonly-utf8"
+        self.path = file.basePath + objName
         self.thumb = thumb
 
     def destFile(self, path, thumb=""):

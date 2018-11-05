@@ -94,6 +94,9 @@ class GetList:
         if self.listHtmlOriginal == None:
             return
         items = self.listHtml("#pageNum").children()
+        if not items:
+            self.isPaging = False
+            print("所有数据已经全部抓完，共抓取", self.picCount, "条数据")
         pageInfo = items.eq(len(items)-1)
         href = pageInfo.attr.href
         pageNum = re.search(re.compile(".{0,}_\d+_(\d+).{0,}",re.DOTALL), href).group(1)

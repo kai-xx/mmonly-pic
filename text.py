@@ -52,6 +52,7 @@ class GetTextList:
         self.isPaging = False
 
     def getData(self, url):
+        print("开始---查询链接为：", url)
         self.isPaging = True
         self.brower.get(url)
         self.html = pq(self.brower.page_source)
@@ -71,11 +72,16 @@ class GetTextList:
             print("当前第", self.count, "获取的图文信息为：", list)
             detail = GetTextDetail(detailHref, list)
             detail.main()
+        print("结束---查询链接为：", url)
     def waitForGetAllData(self):
         page = 2
+        print("页码为", page, "，初始URL为", self.baseUrl)
         if self.html == None:
             return
         items = self.html("#pageNum").children()
+        if not items:
+            self.isPaging = False
+            print("所有数据已经全部抓完，共抓取", self.count, "条数据")
         pageInfo = items.eq(len(items)-1)
         href = pageInfo.attr.href
         pageNum = re.search(re.compile(".{0,}_\d+_(\d+).{0,}",re.DOTALL), href).group(1)
@@ -213,7 +219,7 @@ class GetTextDetail:
 # list = db.getone("select * from pic_arctype where id = 1")
 # print(list)
 # quit()
-
+#
 overTimeHandle.main()
 url = "http://www.mmonly.cc/tstx/"
 navbar = GetNav(url)
@@ -230,7 +236,7 @@ thres = [threading.Thread(target=worke, args=(nav,))
 [thr.join() for thr in thres]
 
 # 获取列表调试代码
-# url = "http://www.mmonly.cc/tstx/ylxw/"
+# url = "http://www.mmonly.cc/tstx/dyyp/"
 # listObj = GetTextList(url)
 # listObj.getHtml()
 
