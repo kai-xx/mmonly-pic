@@ -58,20 +58,23 @@ class GetTextList:
         self.html = pq(self.brower.page_source)
         items = self.html(".listlbc_cont_l .Clbc_Game_l_a .gxnew-kc").items()
         for item in items:
-            soup = BeautifulSoup(str(item), 'lxml')
-            titleList = soup.select(".gxnew-bt > a")[0]
-            title = titleList.string
-            detailHref = titleList.attrs['href']
-            thumbImg = soup.select("#imgshow img")[0].attrs['original']
-            list = {
-               "title": title,
-               "detail-href": detailHref,
-               "thumb-img": thumbImg
-            }
-            self.count += 1
-            print("当前第", self.count, "获取的图文信息为：", list)
-            detail = GetTextDetail(detailHref, list)
-            detail.main()
+            try:
+                soup = BeautifulSoup(str(item), 'lxml')
+                titleList = soup.select(".gxnew-bt > a")[0]
+                title = titleList.string
+                detailHref = titleList.attrs['href']
+                thumbImg = soup.select("#imgshow img")[0].attrs['original']
+                list = {
+                    "title": title,
+                    "detail-href": detailHref,
+                    "thumb-img": thumbImg
+                }
+                self.count += 1
+                print("当前第", self.count, "获取的图文信息为：", list)
+                detail = GetTextDetail(detailHref, list)
+                detail.main()
+            except:
+                continue
         print("结束---查询链接为：", url)
     def waitForGetAllData(self):
         page = 2

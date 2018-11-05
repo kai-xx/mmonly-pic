@@ -1,5 +1,5 @@
-# basePath = "/Users/carter/Documents/code/outObject/mmonly-pic"
-# objectPath = "/home/www/picmmonly"
+basePath = "/Users/carter/Documents/code/outObject/"
+objectPath = "/home/www/"
 
-basePath = "E:\wamp64\www\\"
-objectPath = "E:\wamp64\www\\"
+# basePath = "E:\wamp64\www\\"
+# objectPath = "E:\wamp64\www\\"
