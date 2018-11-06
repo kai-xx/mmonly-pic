@@ -175,7 +175,7 @@ class CreateData:
         if 'tags' in detail:
             print("开始添加标签信息")
             for tagName in detail['tags']:
-                if self.checkTag(tagName) == None:
+                if self.checkTag(tagName) != None:
                     continue
                 try:
                     sql1 = "insert into `"+ self.prefix +"tagindex` (tag, typeid, count, total, weekcc, monthcc, weekup, monthup, addtime) values " \
