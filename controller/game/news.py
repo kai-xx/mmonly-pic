@@ -16,6 +16,7 @@ from bs4 import BeautifulSoup
 from ownModule.down import DownLoadPicture
 from ownModule.tool import Tool
 from endpoint.createData import CreateData
+from endpoint import getPageNumber
 from ownModule.mysql import MySQLSingle
 
 class GetList:
@@ -40,26 +41,25 @@ class GetList:
         lists = []
         print("第", page, "页，开始获取数据")
         for item in items:
-            try:
-                title = item.find(".lone_t").text()
-                if not title:
-                    continue
-                detailHref = item(".lone_t").children().attr.href
-                thumbImg = item(".lone_f .lone_f_l").children().children().attr.src
-                list = {
-                    "title": title,
-                    "detail-href": detailHref,
-                    "thumb-img": thumbImg
-                }
-                print(list)
-                lists.append(list)
-                self.count += 1
-                print("当前第", self.count, "获取的图文信息为：", list)
+            title = item.find(".lone_t").text()
+            if not title:
+                continue
+            detailHref = item(".lone_t").children().attr.href
+            thumbImg = item(".lone_f .lone_f_l").children().children().attr.src
+            print(thumbImg)
+            list = {
+                "title": title,
+                "detail-href": detailHref,
+                "thumb-img": thumbImg
+            }
+            print(list)
+            lists.append(list)
+            self.count += 1
+            print("当前第", self.count, "获取的图文信息为：", list)
+            create = CreateData('gameali', "game_")
+            if create.checkText(title) == None:
                 detail = GetDetail(detailHref, self.waitTime, list)
                 detail.getHtml()
-            except:
-                print("第", page, "页，获取数据失败，失败内容为：", item)
-                continue
     def waitForGetAllData(self):
         page = 2
         if self.html == None:
@@ -70,7 +70,9 @@ class GetList:
             print("所有数据已经全部抓完，共抓取", self.count, "条数据")
         pageInfo = items.eq(len(items)-1)
         href = pageInfo.attr.href
-        pageNum = re.search(re.compile(".{0,}_(\d+).{0,}",re.DOTALL), href).group(1)
+        pageNum = getPageNumber.main()
+        if not pageNum:
+            pageNum = re.search(re.compile(".{0,}_(\d+).{0,}",re.DOTALL), href).group(1)
         while self.isPaging == True :
             if page > int(pageNum):
                 return
@@ -122,78 +124,84 @@ class GetDetail:
         self.count = 0
 
     def getHtml(self):
-        # chromeOptions = webdriver.ChromeOptions()
-        # chromeOptions.add_argument('--headless')
-        # self.brower = webdriver.Chrome(chrome_options=chromeOptions)
-        self.brower = webdriver.Chrome()
+        chromeOptions = webdriver.ChromeOptions()
+        chromeOptions.add_argument('--headless')
+        self.brower = webdriver.Chrome(chrome_options=chromeOptions)
         tool = Tool()
-        try:
-            self.brower.get(self.baseUrl)
-            self.html = self.brower.page_source
-            fatHtml = pq(self.html)
-            title = fatHtml(".ns_t4 .newstit").text()
-            if not title:
-                title = fatHtml(".newstit1").text()
+        self.brower.get(self.baseUrl)
+        self.html = self.brower.page_source
+        fatHtml = pq(self.html)
+        # 标题有多种样式  现发现 .newstit .newstit1
+        title = fatHtml(".ns_t4 .newstit").text()
+        if not title:
+            title = fatHtml(".newstit1").text()
 
-            tag = fatHtml(".newstag_l").text()
-            dateObj = re.search(re.compile("\d+-\d+-\d+.*?\d+:\d+"), tag)
-            if dateObj:
-                dateTime = dateObj.group()
-            else:
-                dateTime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            authorObj = re.search(re.compile("编辑：(.*)(?=浏)"), tag)
-            if authorObj:
-                author = authorObj.group(1).strip()
-            else:
-                author = "admin"
-            viws = fatHtml.find("#totalhits").text()
-            intro = tool.replace(fatHtml(".n_guide").text())
-            content = self.handleContent(fatHtml("#Content").html(), tool)
-            categorysHtml = fatHtml(".n_nav").children().children().items()
-            categorys = []
-            for categoryHtml in categorysHtml:
-                text = categoryHtml.text()
-                category = text.replace(">", "")
-                category = category.replace("\n", "")
-                category = category.strip()
-                if category == "游侠网":
-                    continue
-                if category == "正文":
-                    continue
-                categorys.append(category)
-            detail = {
-                "title": title,
-                "author": author,
-                "date": dateTime,
-                "viws": viws,
-                "intro": intro,
-                "content": content,
-                "categorys": categorys
-            }
-            print("获取到的信息信息为：", detail)
-            create = CreateData('gameali', "game_")
-            # 增加导航信息
-            category1 = 0
-            category2 = 0
-            for key in range(0, len(categorys)):
-                if key == 0:
-                    category1 = create.checkAndInsertCate(categorys[key], 0, 1)
-                    print(category1)
-                if key == 1:
-                    category2 = create.checkAndInsertCate(categorys[key], category1, 1)
-            # 下载图片 图文获取缩略图
-            down = DownLoadPicture(self.listInfo['thumb-img'], True, objectName="gameali")
-            imageInfo, thumbInfo = down.handleDown()
-            if not thumbInfo:
-                thumbInfo = imageInfo
-            # 写入数据
-            if create.checkText(title) == None:
-                # 图片必须是列表
-                create.insertText(category1, category2, 1, detail, [imageInfo], [thumbInfo])
-        except Exception as e:
-            print("抓取数据失败，链接为：", self.baseUrl, "，错误信息为：", e)
-        finally:
-            self.brower.quit()
+        tag = fatHtml(".newstag_l").text()
+        dateObj = re.search(re.compile("\d+-\d+-\d+.*?\d+:\d+"), tag)
+        if dateObj:
+            dateTime = dateObj.group()
+        else:
+            dateTime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        authorObj = re.search(re.compile("编辑：(.*)(?=浏)"), tag)
+        if authorObj:
+            author = authorObj.group(1).strip()
+        else:
+            author = "admin"
+        viws = fatHtml.find("#totalhits").text()
+        intro = tool.replace(fatHtml(".n_guide").text())
+        content = self.handleContent(fatHtml("#Content").html(), tool)
+        # 导航有多种格式 不同样式先发现 .n_nav .n_nav1
+        categorysHtml = fatHtml(".n_nav").children().children().items()
+        if not categorysHtml:
+            categorysHtml = fatHtml(".n_nav1").children().children().items()
+        categorys = []
+        for categoryHtml in categorysHtml:
+            text = categoryHtml.text()
+            category = text.replace(">", "")
+            category = category.replace("\n", "")
+            category = category.strip()
+            if category == "游侠网":
+                continue
+            if category == "正文":
+                continue
+            categorys.append(category)
+        detail = {
+            "title": title,
+            "author": author,
+            "date": dateTime,
+            "viws": viws,
+            "intro": intro,
+            "content": content,
+            "categorys": categorys
+        }
+        print("获取到的信息信息为：", detail)
+        create = CreateData('gameali', "game_")
+        # 增加导航信息
+        category1 = 0
+        category2 = 0
+        for key in range(0, len(categorys)):
+            if key == 0:
+                category1 = create.checkAndInsertCate(categorys[key], 0, 1)
+                print(category1)
+            if key == 1:
+                category2 = create.checkAndInsertCate(categorys[key], category1, 1)
+        # 下载图片 图文获取缩略图
+        down = DownLoadPicture(self.listInfo['thumb-img'], True, objectName="gameali")
+        imageInfo, thumbInfo = down.handleDown()
+        if not thumbInfo:
+            thumbInfo = imageInfo
+        # 写入数据
+        if create.checkText(title) == None:
+            # 图片必须是列表
+            create.insertText(category1, category2, 1, detail, [imageInfo], [thumbInfo])
+        self.brower.quit()
+
+        # try:
+        #     a:1
+        # except Exception as e:
+        #     print("抓取数据失败，链接为：", self.baseUrl, "，错误信息为：", e)
+        # finally:
+        #     self.brower.quit()
     def handleContent(self, html, tool):
         db = MySQLSingle()
         db.get_conn('gameali')

@@ -121,6 +121,8 @@ class CreateData:
                         sqld2 = "delete from "+ self.prefix +"archives where id = %d" % (aid,)
                         self.db.sql(sqld1)
                         self.db.sql(sqld2)
+                    else:
+                        self.addTags(detail, aid, cate, senddate)
                 except Exception as e:
                     print("第三步写入 附屬表表 表名：channel=2->"+ self.prefix +"addonimages  channel=1->"+ self.prefix +"addoninfos", e)
                     sqld1 = "delete from "+ self.prefix +"arctiny where id = %d" % (aid,)
@@ -168,3 +170,37 @@ class CreateData:
             imageUrls += '{dede:img ddimg="%s" text="" width="%d" height="%d"} %s {/dede:img}\r\n' % (path, width, height, path)
 
         return imageUrls
+
+    def addTags(self, detail, aid, typeid, sendate):
+        if 'tags' in detail:
+            print("开始添加标签信息")
+            for tagName in detail['tags']:
+                if self.checkTag(tagName) == None:
+                    continue
+                try:
+                    sql1 = "insert into `"+ self.prefix +"tagindex` (tag, typeid, count, total, weekcc, monthcc, weekup, monthup, addtime) values " \
+                           "('%s','%d',0,1,0,0,'%d','%d','%d')" % (tagName, typeid, sendate, sendate, sendate)
+                    tag = self.db.add(sql1)
+                    if tag:
+                        sql2 = "insert into `"+ self.prefix +"taglist` (tid, aid, arcrank, typeid, tag) VALUES ('%d','%d',0,'%d','%s')" % (
+                        tag, aid, typeid, tagName)
+                        tagList = self.db.add(sql2)
+                except:
+                    print("标签添加失败，文章ID：", aid)
+                    return
+                finally:
+                    print("标签信息添加结束")
+                    return
+        else:
+            print("没有传标签信息，不处理标签添加")
+            return
+    def checkTag(self, tagName):
+        sql = "select id from `"+ self.prefix +"tagindex` where tag='%s'" % (tagName,)
+        tag = self.db.getone(sql)
+        if tag:
+            print("名称为：%s 的标签已存在，标签ID为：%d" % (tagName, tag['id']))
+            sql1 = "update `"+ self.prefix +"tagindex` set  total=total+1 where tag='%s" % (tagName)
+            self.db.save(sql1, tag['id'])
+            return tag['id']
+        else:
+            return None
