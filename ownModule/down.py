@@ -7,6 +7,7 @@ import datetime
 from PIL import Image
 from urllib.request import urlretrieve
 from config import file
+import re
 
 class DownLoadPicture:
     def __init__(self, url="", thumb=False, objectName=None):
@@ -16,6 +17,8 @@ class DownLoadPicture:
         self.thumb = thumb
 
     def destFile(self, path, thumb=""):
+        path = re.sub(re.compile('(?<=.gif|.jpg|.png|.GIF|.JPG|.PNG)(.*)'), '', path)
+        path = re.sub(re.compile('(?<=.jpeg|.JPEG)(.*)'), '', path)
         dirTime = datetime.datetime.now().strftime("%Y%m%d")
         returnDir = "/uploads/allimg/" + dirTime
         savePath = osPath.join(self.path , "uploads", "allimg", dirTime)
@@ -30,6 +33,10 @@ class DownLoadPicture:
         return osPath.join(savePath, thumb + img), returnDir
 
     def handleDown(self):
+        print("下载链接为：", self.url, "，开始下载")
+        if not re.match("^http(s)?.*?", self.url):
+            print("下载图片失败，失败链接为：", self.url, ",错误信息为：链接不合法")
+            return {}, {}
         try:
             filename, imgSavePath = self.destFile(self.url)
             urlretrieve(self.url, filename)

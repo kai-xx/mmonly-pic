@@ -16,6 +16,7 @@ from bs4 import BeautifulSoup
 from ownModule.down import DownLoadPicture
 from ownModule.tool import Tool
 from endpoint.createData import CreateData
+from endpoint import getPageNumber
 from ownModule.mysql import MySQLSingle
 
 class GetList:
@@ -55,8 +56,10 @@ class GetList:
             lists.append(list)
             self.count += 1
             print("当前第", self.count, "获取的图文信息为：", list)
-            detail = GetDetail(detailHref, self.waitTime, list)
-            detail.getHtml()
+            create = CreateData('gameali', "game_")
+            if create.checkText(title) == None:
+                detail = GetDetail(detailHref, self.waitTime, list)
+                detail.getHtml()
     def waitForGetAllData(self):
         page = 2
         if self.html == None:
@@ -67,7 +70,9 @@ class GetList:
             print("所有数据已经全部抓完，共抓取", self.count, "条数据")
         pageInfo = items.eq(len(items)-1)
         href = pageInfo.attr.href
-        pageNum = re.search(re.compile(".{0,}_(\d+).{0,}",re.DOTALL), href).group(1)
+        pageNum = getPageNumber.main()
+        if not pageNum:
+            pageNum = re.search(re.compile(".{0,}_(\d+).{0,}",re.DOTALL), href).group(1)
         while self.isPaging == True :
             if page > int(pageNum):
                 return
@@ -126,6 +131,7 @@ class GetDetail:
         self.brower.get(self.baseUrl)
         self.html = self.brower.page_source
         fatHtml = pq(self.html)
+        # 标题有多种样式  现发现 .newstit .newstit1
         title = fatHtml(".ns_t4 .newstit").text()
         if not title:
             title = fatHtml(".newstit1").text()
@@ -144,7 +150,10 @@ class GetDetail:
         viws = fatHtml.find("#totalhits").text()
         intro = tool.replace(fatHtml(".n_guide").text())
         content = self.handleContent(fatHtml("#Content").html(), tool)
+        # 导航有多种格式 不同样式先发现 .n_nav .n_nav1
         categorysHtml = fatHtml(".n_nav").children().children().items()
+        if not categorysHtml:
+            categorysHtml = fatHtml(".n_nav1").children().children().items()
         categorys = []
         for categoryHtml in categorysHtml:
             text = categoryHtml.text()

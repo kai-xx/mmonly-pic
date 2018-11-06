@@ -15,7 +15,7 @@ from ownModule.tool import Tool
 from ownModule import overTimeHandle
 from endpoint.createData import CreateData
 from ownModule.mysql import MySQLSingle
-
+from endpoint import getPageNumber
 class GetNav:
     def __init__(self, baseUrl):
         self.baseUrl = baseUrl
@@ -84,7 +84,9 @@ class GetTextList:
             print("所有数据已经全部抓完，共抓取", self.count, "条数据")
         pageInfo = items.eq(len(items)-1)
         href = pageInfo.attr.href
-        pageNum = re.search(re.compile(".{0,}_\d+_(\d+).{0,}",re.DOTALL), href).group(1)
+        pageNum = getPageNumber.main()
+        if not pageNum:
+            pageNum = re.search(re.compile(".{0,}_\d+_(\d+).{0,}",re.DOTALL), href).group(1)
         wait = WebDriverWait(self.brower, 5)
         while self.isPaging == True :
             if page > int(pageNum):
