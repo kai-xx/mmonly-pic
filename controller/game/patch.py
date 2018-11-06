@@ -23,7 +23,7 @@ from ownModule.mysql import MySQLSingle
 
 class GetList:
     def __init__(self, baseUrl, waitTime):
-        self.host = "http://patch.ali213.net"
+        self.host = "http://patch.ali213.net/showclass/"
         self.baseUrl = baseUrl
         self.waitTime = waitTime
         self.brower = None
@@ -43,20 +43,18 @@ class GetList:
                 EC.presence_of_element_located((By.CSS_SELECTOR, '.Ali_bd .Ali_bd_left')))
             self.html = self.brower.page_source
             self.fatHtml = pq(self.html)
-            items = self.fatHtml(".Ali_bd .Ali_bd_left ul")
-            print(items)
-            return
+            items = self.fatHtml(".Ali_bd .Ali_bd_left").children().children().items()
             lists = []
             print("第", page, "页，开始获取数据")
             for item in items:
-                title = item.find(".list_body_con_con").text()
+                title = item(".name").children().text()
                 if not title:
                     continue
-                href = item(".list_body_con_con").children().attr.href
+                href = item(".name").children().attr.href
                 if not re.match("^http(s)?.*?", href):
                     href = self.host + href
                 detailHref = href
-                thumbImg = item(".list_body_con_img").children().attr("data-original")
+                thumbImg = ""
                 list = {
                     "title": title,
                     "detail-href": detailHref,
@@ -66,6 +64,7 @@ class GetList:
                 lists.append(list)
                 self.count += 1
                 print("当前第", self.count, "获取的图文信息为：", list)
+                continue
                 create = CreateData('gameali', "game_")
                 if create.checkText(title) == None:
                     print("标题为:", title, "数据不存在，开始获取详情")
@@ -81,15 +80,15 @@ class GetList:
         page = 2
         if self.html == None:
             return
-        items = self.fatHtml(".list_body_page").children()
+        items = self.fatHtml(".Ali_bd .Ali_bd_left .fenye .p_bar").children()
         if not items:
             self.isPaging = False
             print("所有数据已经全部抓完，共抓取", self.count, "条数据")
-        pageInfo = items.eq(len(items)-1)
+        pageInfo = items.eq(len(items)-2)
         href = pageInfo.attr.href
         pageNum = getPageNumber.main()
         if not pageNum:
-            pageNum = re.search(re.compile("(?<=pic-)\d+(?=.html)", re.DOTALL), href).group()
+            pageNum = re.search(re.compile("(?<=top200_)\d+(?=.html)", re.DOTALL), href).group()
         while self.isPaging == True :
             if page > int(pageNum):
                 return
@@ -97,10 +96,10 @@ class GetList:
                 # text_to_be_present_in_element
                 self.wait.until(
                     EC.text_to_be_present_in_element(
-                        (By.CSS_SELECTOR, '.list_body_page a:nth-last-child(2)'), '下一页'
+                        (By.CSS_SELECTOR, '.fenye .p_bar a:nth-last-child(3)'), '下一页'
                     )
                 )
-                url = re.sub(re.compile("(?<=pic-)\d+(?=.html)"), str(page), href)
+                url = re.sub(re.compile("(?<=top200_)\d+(?=.html)"), str(page), href)
                 baseUrl = self.host + url
                 self.getHtml(baseUrl, page)
                 page += 1
@@ -115,7 +114,6 @@ class GetList:
 
         print("--------", "开始获取图文列表信息", "--------")
         self.getHtml(self.baseUrl, 1)
-        return
         self.waitForGetAllData()
         print("--------", "结束获取图文列表信息，共获取到", self.count, "条数据--------")
         self.brower.quit()
