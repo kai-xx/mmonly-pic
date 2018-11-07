@@ -12,7 +12,7 @@ def main(check = True, objectName=None):
         return None
     else:
         days = 20
-        objName = objectName if objectName else "mmonly-utf8"
+        objName = objectName if objectName else "mmonly-pic"
         objectDir = file.objectPath + objName
 
         now = datetime.datetime.now()

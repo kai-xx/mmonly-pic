@@ -12,7 +12,7 @@ import re
 class DownLoadPicture:
     def __init__(self, url="", thumb=False, objectName=None):
         self.url = url
-        objName = objectName if objectName else "mmonly-utf8"
+        objName = objectName if objectName else "mmonly-pic"
         self.path = file.basePath + objName
         self.thumb = thumb
 
