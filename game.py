@@ -33,14 +33,14 @@ def newsThread():
 def downThread():
     time.sleep(2)
     # 获取下载信息
-    # download = GetDownLoadList("http://down.ali213.net/pcgame/", 5)
-    # download.main()
+    download = GetDownLoadList("http://down.ali213.net/pcgame/", 5)
+    download.main()
     # imges =['http://game-ali.com/uploads/allimg/20181106/20181106153306927_2018051712548124.jpg','http://game-ali.com/uploads/allimg/20181106/20181106153307e711d28c-5138-4385-0ac1-fc6e8c63c6a0.jpg','http://game-ali.com/uploads/allimg/20181106/20181106153307927_201805171255157.jpg','http://game-ali.com/uploads/allimg/20181106/20181106153308927_2018051712553935.jpg','http://game-ali.com/uploads/allimg/20181106/20181106153308927_2018051712556140.jpg','http://game-ali.com/uploads/allimg/20181106/20181106153309927_2018051712558812.jpg','http://game-ali.com/uploads/allimg/20181106/20181106153309927_2018051712601336.jpg','http://game-ali.com/uploads/allimg/20181106/20181106153310927_2018051712603145.jpg','http://game-ali.com/uploads/allimg/20181106/20181106153310927_2018051712605553.jpg','http://game-ali.com/uploads/allimg/20181106/20181106153311120X90_2018051712548124.jpg','http://game-ali.com/uploads/allimg/20181106/20181106153311fe956cbf-2da0-27de-57cd-45dfa289fc4e.jpg','http://game-ali.com/uploads/allimg/20181106/20181106153311120X90_201805171255157.jpg','http://game-ali.com/uploads/allimg/20181106/20181106153311120X90_2018051712553935.jpg','http://game-ali.com/uploads/allimg/20181106/20181106153311120X90_2018051712556140.jpg','http://game-ali.com/uploads/allimg/20181106/20181106153311120X90_2018051712558812.jpg','http://game-ali.com/uploads/allimg/20181106/20181106153311120X90_2018051712601336.jpg','http://game-ali.com/uploads/allimg/20181106/20181106153312120X90_2018051712603145.jpg','http://game-ali.com/uploads/allimg/20181106/20181106153312120X90_2018051712605553.jpg']
 
-    downloadListInfo ={'title': '黑色五叶草：四重奏骑士', 'detail-href': 'http://down.ali213.net/pcgame/blackcloverquartetknights.html', 'thumb-img': 'http://imgs.ali213.net/oday/uploadfile/2017/12/06/2017120693843591.jpg'}
-
-    downloadDetail = GetDownLoadDetail("http://down.ali213.net/pcgame/blackcloverquartetknights.html", 5, downloadListInfo)
-    downloadDetail.getHtml()
+    # downloadListInfo ={'title': '黑色五叶草：四重奏骑士', 'detail-href': 'http://down.ali213.net/pcgame/blackcloverquartetknights.html', 'thumb-img': 'http://imgs.ali213.net/oday/uploadfile/2017/12/06/2017120693843591.jpg'}
+    #
+    # downloadDetail = GetDownLoadDetail("http://down.ali213.net/pcgame/blackcloverquartetknights.html", 5, downloadListInfo)
+    # downloadDetail.getHtml()
     # print(downloadDetail.addPic(imges))
 
 def patchThread():
@@ -116,13 +116,11 @@ def worke(className):
         idsThread()
 
 
-# threads = ["news", "down", "patch", "qqvs", "vr1", "vr2", "mgame", "ids"]
-# #  开启线程
-# thres = [Thread(target=worke, args=(t,))
-#             for t in threads]
-# # 开始执行线程
-# [thr.start() for thr in thres]
-# # 等待线程执行结束
-# [thr.join() for thr in thres]
-
-downThread()
+threads = ["news", "down", "patch", "qqvs", "vr1", "vr2", "mgame", "ids"]
+#  开启线程
+thres = [Thread(target=worke, args=(t,))
+            for t in threads]
+# 开始执行线程
+[thr.start() for thr in thres]
+# 等待线程执行结束
+[thr.join() for thr in thres]
