@@ -1,0 +1,1 @@
+gameali\templets\default
