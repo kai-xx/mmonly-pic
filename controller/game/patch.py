@@ -23,7 +23,7 @@ from ownModule.mysql import MySQLSingle
 
 class GetList:
     def __init__(self, baseUrl, waitTime):
-        self.host = "http://patch.ali213.net/showclass/"
+        self.host = "http://patch.ali213.net"
         self.baseUrl = baseUrl
         self.waitTime = waitTime
         self.brower = None
@@ -64,7 +64,6 @@ class GetList:
                 lists.append(list)
                 self.count += 1
                 print("当前第", self.count, "获取的图文信息为：", list)
-                continue
                 create = CreateData('gameali', "game_")
                 if create.checkText(title) == None:
                     print("标题为:", title, "数据不存在，开始获取详情")
@@ -100,7 +99,7 @@ class GetList:
                     )
                 )
                 url = re.sub(re.compile("(?<=top200_)\d+(?=.html)"), str(page), href)
-                baseUrl = self.host + url
+                baseUrl = self.host + "/showclass/" + url
                 self.getHtml(baseUrl, page)
                 page += 1
             except TimeoutException:
@@ -138,8 +137,8 @@ class GetDetail:
         self.html = self.brower.page_source
         fatHtml = pq(self.html)
         # 标题有多种样式  现发现 .newstit .newstit1
-        title = fatHtml(".detail_game_l .detail_game_l_r .detail_game_l_r_tit .detail_game_l_r_ctit").text()
-        info = fatHtml(".detail_game_l_r_info").text()
+        title = fatHtml(".contentLeft .contentMain").children().eq(0).text()
+        info = fatHtml(".contentLeft .contentMain .pluginDetail").children().eq(1).text()
         dateObj = re.search(re.compile("\d+-\d+-\d+"), info)
         if dateObj:
             dateTime = "%s 00:00" % (dateObj.group(),)
@@ -147,29 +146,24 @@ class GetDetail:
             dateTime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         author = "admin"
         viws = 0
-        intro = tool.replace(fatHtml("#yxjs .detail_body_left_info_con").text())
+        intro = ""
         content = self.handleContent(fatHtml, tool)
-
+        thumbImg = fatHtml(".contentLeft .gamePic").children().attr.src
         # 导航有多种格式 不同样式先发现 .n_nav .n_nav1
-        categorysHtml = fatHtml(".detail_game_l_nav").children().items()
+        categorysHtml = fatHtml(".brandNav").children().items()
         categorys = []
         i = 0
         for categoryHtml in categorysHtml:
             i += 1
-            if i > 3:
+            if i > 2:
                 continue
             text = categoryHtml.text()
             category = text.replace(">", "")
             category = category.replace("\n", "")
             category = category.strip()
-            if category == "下载首页":
-                continue
+            if category == "补丁首页":
+                category = re.sub('首页', '', category)
             categorys.append(category)
-        tags = fatHtml(".detail_game_l_r_tag ").children().items()
-        tagsList = []
-        for tag in tags:
-            tagsList.append(tag.text())
-            print(tag.text())
         detail = {
             "title": title,
             "author": author,
@@ -178,7 +172,7 @@ class GetDetail:
             "intro": intro,
             "content": content,
             "categorys": categorys,
-            "tags": tagsList
+            "tags": ""
         }
         print("获取到的信息信息为：", detail)
         create = CreateData('gameali', "game_")
@@ -192,7 +186,7 @@ class GetDetail:
             if key == 1:
                 category2 = create.checkAndInsertCate(categorys[key], category1, 1)
         # 下载图片 图文获取缩略图
-        down = DownLoadPicture(self.listInfo['thumb-img'], True, objectName="gameali")
+        down = DownLoadPicture(thumbImg, True, objectName="gameali")
         imageInfo, thumbInfo = down.handleDown()
         if not thumbInfo:
             thumbInfo = imageInfo
@@ -217,70 +211,22 @@ class GetDetail:
             host = config['value']
         else:
             host = "http://127.0.0.1"
-        pzyq = html.find('#pzyq').html()
-        azsm = html.find('#azsm').html()
-        bbyxk = html.find('.detail_body_left_info').html()
-        downButten = html.find('.quick_down').html()
-        imageInfo = html("#bimg").html()
-        imgSoap = BeautifulSoup(imageInfo, "lxml")
-        images = []
-        for image in imgSoap.select('.detail_body_con_bb_con_con img'):
-            src = image.get('src')
-            print("獲取到連接為", src)
-            if src:
-                down = DownLoadPicture(src, objectName="gameali")
-                imageInfo, thumbInfo = down.handleDown()
-                if not imageInfo:
-                    continue
-                path = host + imageInfo['path']
-                images.append(path)
+        bdjs = html(".mainContent .mainContentLeft .pluginIntroduceContaienr").html()
+        bdjs = tool.replace(bdjs)
+        downHtml = html(".mainContent .mainContentLeft .downAddressContainer .contentLinkContainer").html()
+        # downHtml = html(".mainContent .mainContentLeft .downAddressContainer").html()
+        # downHtml = re.sub("我要报错", "", downHtml)
+        # downHtml = re.sub("版本说明", "", downHtml)
+        imgSoap = BeautifulSoup(bdjs, "lxml")
+        for i in range(0, len(imgSoap.find_all('img'))):
+            down = DownLoadPicture(imgSoap.find_all('img')[i].get('src'), objectName="gameali")
+            imageInfo, thumbInfo = down.handleDown()
+            path = host + imageInfo['path']
+            imgSoap.find_all('img')[i]['src'] = path
 
-
-        bodyHtml = pzyq + azsm +bbyxk
-        bodyHtml = tool.replace(bodyHtml) + downButten
-
-        resultHtml = self.addPic(images, bodyHtml)
-        return resultHtml
-
-    def addPic(self, images, bodyHtml):
-
-        imageCount = len(images)
-        if imageCount > 0:
-            html = '<div id="example3" class="slider-pro"></div>'
-            soup = BeautifulSoup(html)
-            div_tag = soup.div
-            slides_tag = soup.new_tag('div', attrs={"class": "sp-slides"})
-            thumb_tag = soup.new_tag('div', attrs={"class": "sp-thumbnails"})
-            for image in range(0, imageCount):
-                if not images[image]:
-                    continue
-                slide_tag = soup.new_tag('div',  attrs={"class": "sp-slide"})
-                slide_img_tag = soup.new_tag('img', attrs={
-                    "class": "sp-image",
-                    "src": "src/css/images/blank.gif",
-                    "data-src": images[image],
-                    "data-small": images[image],
-                    "data-medium": images[image],
-                    "data-large": images[image],
-                    "data-retina": images[image],
-                })
-                slide_tag.append(slide_img_tag)
-                slides_tag.append(slide_tag)
-                thumb_img_tag = soup.new_tag('img', attrs={"class": "sp-thumbnail", "src": images[image]})
-                thumb_tag.append(thumb_img_tag)
-            div_tag.append(slides_tag)
-            div_tag.append(thumb_tag)
-            js = '	<script type="text/javascript" src="http://game-ali.com/templets/default/slipde/jquery-1.11.0.min.js"></script>' \
-	        '<script type="text/javascript" src="http://game-ali.com/templets/default/slipde/jquery.sliderPro.min.js"></script>' \
-	        '<link rel="stylesheet" type="text/css" href="http://game-ali.com/templets/default/slipde/slider-pro.min.css" media="screen"/>' \
-	        '<script type="text/javascript">' \
-		    '$( document ).ready(function( $ ) { $( "#example3" ).sliderPro({ width: 700, height: 500, fade: true, arrows: true, buttons: false, fullScreen: true, shuffle: true, smallSize: 500, mediumSize: 1000, largeSize: 3000, thumbnailArrows: true, autoplay: false }); });' \
-	        '</script>'
-            res = BeautifulSoup(str(div_tag) + js + bodyHtml)
-
-            return res.prettify()
-        else:
-            return ""
+        resultHtml = str(imgSoap) + downHtml
+        res = BeautifulSoup(resultHtml)
+        return res.prettify()
 
 # news = GetList("http://down.ali213.net/pcgame/", 5)
 # news.main()

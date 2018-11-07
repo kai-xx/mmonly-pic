@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*
 __author__ = 'double k'
-
 """
-获取游戏下载
-http://down.ali213.net/pcgame/
+获取游戏VR资讯1
+http://www.ali213.net/vr/news
 """
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
@@ -23,7 +22,7 @@ from ownModule.mysql import MySQLSingle
 
 class GetList:
     def __init__(self, baseUrl, waitTime):
-        self.host = "http://down.ali213.net"
+        self.host = "http://www.ali213.net"
         self.baseUrl = baseUrl
         self.waitTime = waitTime
         self.brower = None
@@ -40,27 +39,26 @@ class GetList:
         self.wait = WebDriverWait(self.brower, self.waitTime)
         try:
             self.wait.until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, '.list_body .list_body_contain .list_body_con')))
+                EC.presence_of_element_located((By.CSS_SELECTOR, '.vr_list_left .vr_list_left_li')))
             self.html = self.brower.page_source
             self.fatHtml = pq(self.html)
-            items = self.fatHtml(".list_body .list_body_contain .list_body_con").items()
+            items = self.fatHtml(".vr_list_left .vr_list_left_li").items()
             lists = []
             print("第", page, "页，开始获取数据")
             for item in items:
-                title = item.find(".list_body_con_con").text()
+                title = item(".vr_list_left_txt .vr_list_left_link").children().text()
                 if not title:
                     continue
-                href = item(".list_body_con_con").children().attr.href
+                href = item(".vr_list_left_txt .vr_list_left_link").children().attr.href
                 if not re.match("^http(s)?.*?", href):
                     href = self.host + href
                 detailHref = href
-                thumbImg = item(".list_body_con_img").children().attr("data-original")
+                thumbImg = item(".vr_list_left_info .vr_body_list_left_img").children().children().attr.src
                 list = {
                     "title": title,
                     "detail-href": detailHref,
                     "thumb-img": thumbImg
                 }
-                print(list)
                 lists.append(list)
                 self.count += 1
                 print("当前第", self.count, "获取的图文信息为：", list)
@@ -79,15 +77,15 @@ class GetList:
         page = 2
         if self.html == None:
             return
-        items = self.fatHtml(".list_body_page").children()
+        items = self.fatHtml(".vr_list_left_page").children()
         if not items:
             self.isPaging = False
             print("所有数据已经全部抓完，共抓取", self.count, "条数据")
-        pageInfo = items.eq(len(items)-1)
+        pageInfo = items.eq(len(items)-2)
         href = pageInfo.attr.href
         pageNum = getPageNumber.main()
         if not pageNum:
-            pageNum = re.search(re.compile("(?<=pic-)\d+(?=.html)", re.DOTALL), href).group()
+            pageNum = re.search(re.compile("(?<=index_)\d+(?=.html)", re.DOTALL), href).group()
         while self.isPaging == True :
             if page > int(pageNum):
                 return
@@ -95,10 +93,10 @@ class GetList:
                 # text_to_be_present_in_element
                 self.wait.until(
                     EC.text_to_be_present_in_element(
-                        (By.CSS_SELECTOR, '.list_body_page a:nth-last-child(2)'), '下一页'
+                        (By.CSS_SELECTOR, '.vr_list_left_page a:nth-last-child(3)'), '下一页'
                     )
                 )
-                url = re.sub(re.compile("(?<=pic-)\d+(?=.html)"), str(page), href)
+                url = re.sub(re.compile("(?<=index_)\d+(?=.html)"), str(page), href)
                 baseUrl = self.host + url
                 self.getHtml(baseUrl, page)
                 page += 1
@@ -136,23 +134,18 @@ class GetDetail:
         self.brower.get(self.baseUrl)
         self.html = self.brower.page_source
         fatHtml = pq(self.html)
-        # 标题有多种样式  现发现 .newstit .newstit1
-        title = fatHtml(".detail_game_l .detail_game_l_r .detail_game_l_r_tit .detail_game_l_r_ctit").children().eq(0).text()
-        info = fatHtml(".detail_game_l_r_info").text()
+        title = fatHtml(".vr_detail_top .vr_detail_top_title").text()
+        info = fatHtml(".vr_detail_top .vr_detail_top_des .vr_detail_exp").text()
         dateObj = re.search(re.compile("\d+-\d+-\d+"), info)
         if dateObj:
-            dateTime = "%s 00:00" % (dateObj.group(),)
+            dateTime = "%s 13:23" % (dateObj.group(),)
         else:
-            dateTime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            dateTime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
         author = "admin"
         viws = 0
-        intro = tool.replace(fatHtml("#yxjs .detail_body_left_info_con").text())
-        if len(intro) > 200:
-            intro = ""
+        intro = fatHtml(".vr_detail_left_top_con").text()
         content = self.handleContent(fatHtml, tool)
-
-        # 导航有多种格式 不同样式先发现 .n_nav .n_nav1
-        categorysHtml = fatHtml(".detail_game_l_nav").children().items()
+        categorysHtml = fatHtml(".vr_detail_left .vr_list_left_tab").children().items()
         categorys = []
         i = 0
         for categoryHtml in categorysHtml:
@@ -163,14 +156,9 @@ class GetDetail:
             category = text.replace(">", "")
             category = category.replace("\n", "")
             category = category.strip()
-            if category == "下载首页":
+            if category == "游侠网":
                 continue
             categorys.append(category)
-        tags = fatHtml(".detail_game_l_r_tag ").children().items()
-        tagsList = []
-        for tag in tags:
-            tagsList.append(tag.text())
-            print(tag.text())
         detail = {
             "title": title,
             "author": author,
@@ -179,7 +167,7 @@ class GetDetail:
             "intro": intro,
             "content": content,
             "categorys": categorys,
-            "tags": tagsList
+            "tags": ""
         }
         print("获取到的信息信息为：", detail)
         create = CreateData('gameali', "game_")
@@ -218,95 +206,15 @@ class GetDetail:
             host = config['value']
         else:
             host = "http://127.0.0.1"
+        body = html(".vr_detail_left_news").html()
+        body = tool.replace(body)
+        imgSoap = BeautifulSoup(body, "lxml")
+        for i in range(0, len(imgSoap.find_all('img'))):
+            del imgSoap.find_all('img')[i]['onclick']
+            del imgSoap.find_all('img')[i]['onmouseover']
+            down = DownLoadPicture(imgSoap.find_all('img')[i].get('src'), objectName="gameali")
+            imageInfo, thumbInfo = down.handleDown()
+            path = host + imageInfo['path']
+            imgSoap.find_all('img')[i]['src'] = path
 
-        pzyq = html.find('#pzyq').html()
-        if not pzyq:
-            pzyq = ""
-        azsm = html.find('#azsm').html()
-        if not azsm:
-            azsm = ""
-        bbyxk = html.find('.detail_body_left_info').html()
-        if not bbyxk:
-            bbyxk = ""
-        downButten = html.find('.quick_down').html()
-        imageInfo = html("#bimg").html()
-        images = []
-        if imageInfo:
-            imgSoap = BeautifulSoup(imageInfo, "lxml")
-            for image in imgSoap.select('.detail_body_con_bb_con_con img'):
-                src = image.get('src')
-                print("獲取到連接為", src)
-                if src:
-                    down = DownLoadPicture(src, objectName="gameali")
-                    imageInfo, thumbInfo = down.handleDown()
-                    if not imageInfo:
-                        continue
-                    path = host + imageInfo['path']
-                    images.append(path)
-
-        bodyHtml = pzyq + azsm +bbyxk
-        bodyHtml = tool.replace(bodyHtml) + downButten
-        # 处理游戏介绍
-        yxjs = html.find('#yxjs').html()
-        if not yxjs:
-            yxjs = ""
-        else:
-            yxjs = tool.replace(yxjs)
-            imgSoap = BeautifulSoup(yxjs, "lxml")
-            for i in range(0, len(imgSoap.find_all('img'))):
-                down = DownLoadPicture(imgSoap.find_all('img')[i].get('src'), objectName="gameali")
-                imageInfo, thumbInfo = down.handleDown()
-                path = host + imageInfo['path']
-                imgSoap.find_all('img')[i]['src'] = path
-            bodyHtml = str(imgSoap) + bodyHtml
-
-        resultHtml = self.addPic(images, bodyHtml)
-        return resultHtml
-
-    def addPic(self, images, bodyHtml):
-        imageCount = len(images)
-        if imageCount > 0:
-            html = '<div id="example3" class="slider-pro"></div>'
-            soup = BeautifulSoup(html)
-            div_tag = soup.div
-            slides_tag = soup.new_tag('div', attrs={"class": "sp-slides"})
-            thumb_tag = soup.new_tag('div', attrs={"class": "sp-thumbnails"})
-            for image in range(0, imageCount):
-                if not images[image]:
-                    continue
-                slide_tag = soup.new_tag('div',  attrs={"class": "sp-slide"})
-                slide_img_tag = soup.new_tag('img', attrs={
-                    "class": "sp-image",
-                    "src": "src/css/images/blank.gif",
-                    "data-src": images[image],
-                    "data-small": images[image],
-                    "data-medium": images[image],
-                    "data-large": images[image],
-                    "data-retina": images[image],
-                })
-                slide_tag.append(slide_img_tag)
-                slides_tag.append(slide_tag)
-                thumb_img_tag = soup.new_tag('img', attrs={"class": "sp-thumbnail", "src": images[image]})
-                thumb_tag.append(thumb_img_tag)
-            div_tag.append(slides_tag)
-            div_tag.append(thumb_tag)
-            js = '	<script type="text/javascript" src="http://game-ali.com/templets/default/slipde/jquery-1.11.0.min.js"></script>' \
-	        '<script type="text/javascript" src="http://game-ali.com/templets/default/slipde/jquery.sliderPro.min.js"></script>' \
-	        '<link rel="stylesheet" type="text/css" href="http://game-ali.com/templets/default/slipde/slider-pro.min.css" media="screen"/>' \
-	        '<script type="text/javascript">' \
-		    '$( document ).ready(function( $ ) { $( "#example3" ).sliderPro({ width: 700, height: 500, fade: true, arrows: true, buttons: false, fullScreen: true, shuffle: true, smallSize: 500, mediumSize: 1000, largeSize: 3000, thumbnailArrows: true, autoplay: false }); });' \
-	        '</script>'
-            res = BeautifulSoup(str(div_tag) + js + bodyHtml)
-
-            return res.prettify()
-        else:
-            res = BeautifulSoup(bodyHtml)
-            return res.prettify()
-
-# news = GetList("http://down.ali213.net/pcgame/", 5)
-# news.main()
-# detail = GetDetail("http://www.ali213.net/news/html/2018-9/382579.html", 5)
-# detail.getHtml()
-# html = '<li><a href="http://www.ali213.net" target="_blank">游侠网</a>&nbsp;&gt;&nbsp;</li>'
-# aa = pq(html)
-# print(aa('a').text())
+        return imgSoap.prettify()

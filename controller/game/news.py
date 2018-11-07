@@ -149,6 +149,8 @@ class GetDetail:
             author = "admin"
         viws = fatHtml.find("#totalhits").text()
         intro = tool.replace(fatHtml(".n_guide").text())
+        if len(intro) > 200:
+            intro = ""
         content = self.handleContent(fatHtml("#Content").html(), tool)
         # 导航有多种格式 不同样式先发现 .n_nav .n_nav1
         categorysHtml = fatHtml(".n_nav").children().children().items()

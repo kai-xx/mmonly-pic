@@ -74,8 +74,15 @@ class CreateData:
         aid = self.db.add(sql1)
         click = random.randint(70, 800)
         title = detail['title']
+        shortTitle = title
+        if len(shortTitle) > 36:
+            shortTitle = ""
         thumb = thumbInfo[0]['path'] if thumbInfo[0]['path'] else ""
+        author = detail['author'] if detail['author'] else "admin"
         description = detail['intro']
+        if len(description) > 200:
+            description = ""
+
         body = detail['content']
         if aid:
             try:
@@ -87,11 +94,11 @@ class CreateData:
                        "`filename`, `dutyadmin`, `tackid`, `mtype`, `weight`) " \
                        "VALUES (%d, %d, 0, %d, 'p', -1, " \
                        "%d, 0, %d, 0, '%s', '%s', '', " \
-                       "'admin', '未知', '%s', %d, %d, 1, '', " \
+                       "'%s', '未知', '%s', %d, %d, 1, '', " \
                        "0, 0, 0, 0, 0, 0, '%s', " \
                        "'', 1, 0, 0, 0)" % (aid, cate, senddate,
-                                            channel, click, title, title,
-                                            thumb, senddate, senddate,
+                                            channel, click, title, shortTitle,
+                                            author, thumb, senddate, senddate,
                                             description)
                 archives = self.db.add(sql2)
                 print("第二走写入 主档案表 完成，等待后续处理")
@@ -99,6 +106,7 @@ class CreateData:
                     print("第二走写入 主档案表 异常 回退")
                     sqld1 = "delete from "+ self.prefix +"arctiny where id = %d" % (aid,)
                     self.db.sql(sqld1)
+                    return None
                 try:
                     # 第三步写入 附屬表表 表名：channel=2->"+ self.prefix +"addonimages  channel=1->"+ self.prefix +"addoninfos
                     if channel == 1:
@@ -121,6 +129,7 @@ class CreateData:
                         sqld2 = "delete from "+ self.prefix +"archives where id = %d" % (aid,)
                         self.db.sql(sqld1)
                         self.db.sql(sqld2)
+                        return None
                     else:
                         self.addTags(detail, aid, cate, senddate)
                 except Exception as e:
@@ -129,11 +138,12 @@ class CreateData:
                     sqld2 = "delete from "+ self.prefix +"archives where id = %d" % (aid,)
                     self.db.sql(sqld1)
                     self.db.sql(sqld2)
+                    return None
             except Exception as e:
                 print("第二走写入 主档案表 异常 表名："+ self.prefix +"archives", e)
                 sqld1 = "delete from "+ self.prefix +"arctiny where id = %d" % (aid,)
                 self.db.sql(sqld1)
-
+                return None
             # 第四步写入 图片表 表名："+ self.prefix +"uploads
             sql4 = "INSERT INTO `"+ self.prefix +"uploads` (`arcid`, `title`, `url`, `mediatype`, `width`, `height`, " \
                    "`playtime`, `filesize`, `uptime`, `mid`) VALUES"
@@ -172,10 +182,14 @@ class CreateData:
         return imageUrls
 
     def addTags(self, detail, aid, typeid, sendate):
+        print(detail)
         if 'tags' in detail:
             print("开始添加标签信息")
+            if len(detail['tags']) == 0:
+                print("标签信息长度为0，不处理标签添加")
+                return
             for tagName in detail['tags']:
-                if self.checkTag(tagName) != None:
+                if self.checkTag(tagName, aid, typeid) != None:
                     continue
                 try:
                     sql1 = "insert into `"+ self.prefix +"tagindex` (tag, typeid, count, total, weekcc, monthcc, weekup, monthup, addtime) values " \
@@ -187,20 +201,21 @@ class CreateData:
                         tagList = self.db.add(sql2)
                 except:
                     print("标签添加失败，文章ID：", aid)
-                    return
-                finally:
-                    print("标签信息添加结束")
-                    return
+            print("标签信息添加结束")
+            return
         else:
             print("没有传标签信息，不处理标签添加")
             return
-    def checkTag(self, tagName):
+    def checkTag(self, tagName, aid, typeid):
         sql = "select id from `"+ self.prefix +"tagindex` where tag='%s'" % (tagName,)
         tag = self.db.getone(sql)
         if tag:
             print("名称为：%s 的标签已存在，标签ID为：%d" % (tagName, tag['id']))
-            sql1 = "update `"+ self.prefix +"tagindex` set  total=total+1 where tag='%s" % (tagName)
+            sql1 = "update `"+ self.prefix +"tagindex` set  total=total+1 where tag='%s'" % (tagName)
             self.db.save(sql1, tag['id'])
+            sql2 = "insert into `" + self.prefix + "taglist` (tid, aid, arcrank, typeid, tag) VALUES ('%d','%d',0,'%d','%s')" % (
+                tag['id'], aid, typeid, tagName)
+            tagList = self.db.add(sql2)
             return tag['id']
         else:
             return None
