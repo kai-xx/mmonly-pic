@@ -220,13 +220,16 @@ class GetPictureDetail:
         else:
             date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         if len(images) > 0:
-            print("抓取到的图片信息为：", {
-                "images": images,
-                "categorys": categorys,
-                "author": author,
+            detail = {
+                'title': self.picture['title'],
                 "date": date,
-                "detail": detail
-            })
+                "author": author,
+                "viws": 0,
+                "intro": "",
+                "content": detail,
+                "categorys": categorys
+            }
+            print(detail)
             create = CreateData()
             # 增加导航信息
             category1 = 0
@@ -255,50 +258,44 @@ class GetPictureDetail:
             # 写入数据
             if create.checkText(self.picture['title']) == None:
                 # 图片必须是列表
-                detail = {
-                    'title': self.picture['title'],
-                    "date": date,
-                    "viws": 0,
-                    "intro": "",
-                    "content": detail,
-                    "categorys": categorys
-                }
                 create.insertText(category1, category2, 2, detail, imageInfos, thumbInfos)
         self.brower.quit()
 
-overTimeHandle.main()
-url = "http://www.mmonly.cc/"
-navbar = GetNavbar(url)
-navbars = navbar.getNavbar()
-navbars.append({'category': '美女图片', 'href': 'http://www.mmonly.cc/mmtp/'})
-navbar.close()
-def worke(nav):
-    # nav = {'category': '其他图片', 'href': 'http://www.mmonly.cc/qttp/'}
-    listItem = GetList(nav)
-    listItem.main()
-thres = [threading.Thread(target=worke, args=(nav,))
-            for nav in navbars]
-# 开始执行线程
-[thr.start() for thr in thres]
-# 等待线程执行结束
-[thr.join() for thr in thres]
-# while True:
-#     length=len(threading.enumerate())#枚举返回个列表
-#     print('当前运行的线程数为：%d'%length)
-#     if length<=1:
-#         break
+code = overTimeHandle.main()
+
+if code != 100200:
+    url = "http://www.mmonly.cc/"
+    navbar = GetNavbar(url)
+    navbars = navbar.getNavbar()
+    navbars.append({'category': '美女图片', 'href': 'http://www.mmonly.cc/mmtp/'})
+    navbar.close()
+    def worke(nav):
+        # nav = {'category': '其他图片', 'href': 'http://www.mmonly.cc/qttp/'}
+        listItem = GetList(nav)
+        listItem.main()
+    thres = [threading.Thread(target=worke, args=(nav,))
+                for nav in navbars]
+    # 开始执行线程
+    [thr.start() for thr in thres]
+    # 等待线程执行结束
+    [thr.join() for thr in thres]
+    # while True:
+    #     length=len(threading.enumerate())#枚举返回个列表
+    #     print('当前运行的线程数为：%d'%length)
+    #     if length<=1:
+    #         break
 
 
-# navbar1 = {'category': '其他图片', 'href': 'http://www.mmonly.cc/qttp/'}
-# listItem = GetList(navbar1)
-# listItem.main()
+    # navbar1 = {'category': '其他图片', 'href': 'http://www.mmonly.cc/qttp/'}
+    # listItem = GetList(navbar1)
+    # listItem.main()
 
 
-# detail = {'title': '女性脚背上的蜻蜓纹身图案', 'image': 'http://t1.hxzdhn.com/uploads/tu/201810/9999/rnce5e970959.jpg', 'detail-href': 'http://www.mmonly.cc/sgtp/jrsg/279337.html', 'pic-count': 4}
-# detail = {'title': '高广泽炫酷写真 玩转艺术范儿', 'image': 'http://t1.hxzdhn.com/uploads/tu/201811/9999/50eda7caf2.jpg', 'detail-href': 'http://www.mmonly.cc/sgtp/omsg/279836.html', 'pic-count': 4}
-# d = GetPictureDetail(detail)
-# d.main()
+    # detail = {'title': '女性脚背上的蜻蜓纹身图案', 'image': 'http://t1.hxzdhn.com/uploads/tu/201810/9999/rnce5e970959.jpg', 'detail-href': 'http://www.mmonly.cc/sgtp/jrsg/279337.html', 'pic-count': 4}
+    # detail = {'title': '高广泽炫酷写真 玩转艺术范儿', 'image': 'http://t1.hxzdhn.com/uploads/tu/201811/9999/50eda7caf2.jpg', 'detail-href': 'http://www.mmonly.cc/sgtp/omsg/279836.html', 'pic-count': 4}
+    # d = GetPictureDetail(detail)
+    # d.main()
 
-# string = "编辑：唯一图库 \xa0\xa0\xa0更新时间：2018-10-30 09:40"
-#
-# print(re.findall(re.compile("更新时间：(.*?)\Z"), string)[0])
+    # string = "编辑：唯一图库 \xa0\xa0\xa0更新时间：2018-10-30 09:40"
+    #
+    # print(re.findall(re.compile("更新时间：(.*?)\Z"), string)[0])

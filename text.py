@@ -225,32 +225,33 @@ class GetTextDetail:
 # print(list)
 # quit()
 #
-overTimeHandle.main()
-url = "http://www.mmonly.cc/tstx/"
-navbar = GetNav(url)
-navs = navbar.getHtml()
-def worke(nav):
-    listItem = GetTextList(nav)
-    listItem.getHtml()
-#  开启线程
-thres = [threading.Thread(target=worke, args=(nav,))
-            for nav in navs]
-# 开始执行线程
-[thr.start() for thr in thres]
-# 等待线程执行结束
-[thr.join() for thr in thres]
+code = overTimeHandle.main()
+if code != 100200:
+    url = "http://www.mmonly.cc/tstx/"
+    navbar = GetNav(url)
+    navs = navbar.getHtml()
+    def worke(nav):
+        listItem = GetTextList(nav)
+        listItem.getHtml()
+    #  开启线程
+    thres = [threading.Thread(target=worke, args=(nav,))
+                for nav in navs]
+    # 开始执行线程
+    [thr.start() for thr in thres]
+    # 等待线程执行结束
+    [thr.join() for thr in thres]
 
-# 获取列表调试代码
-# url = "http://www.mmonly.cc/tstx/dyyp/"
-# listObj = GetTextList(url)
-# listObj.getHtml()
+    # 获取列表调试代码
+    # url = "http://www.mmonly.cc/tstx/dyyp/"
+    # listObj = GetTextList(url)
+    # listObj.getHtml()
 
-# 获取详情信息调试代码
-# url = "http://www.mmonly.cc/tstx/ylxw/192333.html"
-# listInfo = {
-#                "title": "盘点娱乐圈女星透视装，若隐约现，小孩都看了都脸红！",
-#                "detail-href": "http://www.mmonly.cc/tstx/ylxw/192333.html",
-#                "thumb-img": "http://t1.hxzdhn.com/uploads/tu/201709/9999/rn7706ea40ca.jpeg"
-#             }
-# detailObj = GetTextDetail(url, listInfo)
-# detailObj.main()
+    # 获取详情信息调试代码
+    # url = "http://www.mmonly.cc/tstx/ylxw/192333.html"
+    # listInfo = {
+    #                "title": "盘点娱乐圈女星透视装，若隐约现，小孩都看了都脸红！",
+    #                "detail-href": "http://www.mmonly.cc/tstx/ylxw/192333.html",
+    #                "thumb-img": "http://t1.hxzdhn.com/uploads/tu/201709/9999/rn7706ea40ca.jpeg"
+    #             }
+    # detailObj = GetTextDetail(url, listInfo)
+    # detailObj.main()
