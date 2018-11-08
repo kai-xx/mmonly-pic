@@ -77,7 +77,7 @@ class CreateData:
         shortTitle = title
         if len(shortTitle) > 36:
             shortTitle = ""
-        thumb = thumbInfo[0]['path'] if thumbInfo[0]['path'] else ""
+        thumb = thumbInfo[0]['path'] if len(thumbInfo) > 0 else ""
         author = detail['author'] if detail['author'] else "admin"
         description = detail['intro']
         if len(description) > 200:

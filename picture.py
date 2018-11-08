@@ -31,6 +31,9 @@ class GetNavbar:
     def getNavbar(self):
         chromeOptions = webdriver.ChromeOptions()
         chromeOptions.add_argument('--headless')
+        chromeOptions.add_argument('--no-sandbox')
+        chromeOptions.add_argument('--disable-gpu')
+        chromeOptions.add_argument('--disable-dev-shm-usage')
         self.browser = webdriver.Chrome(chrome_options=chromeOptions)
         self.browser.get(self.baseUrl)
         # self.homeHtml = pq(self.browser.page_source)
@@ -124,6 +127,9 @@ class GetList:
     def main(self):
         chromeOptions = webdriver.ChromeOptions()
         chromeOptions.add_argument('--headless')
+        chromeOptions.add_argument('--no-sandbox')
+        chromeOptions.add_argument('--disable-gpu')
+        chromeOptions.add_argument('--disable-dev-shm-usage')
         self.brower = webdriver.Chrome(chrome_options=chromeOptions)
         print("--------导航为", self.navbarInfo['category'], "开始获取数据--------")
         # 初始化页面并获取第一页数据
@@ -198,6 +204,9 @@ class GetPictureDetail:
     def main(self):
         chromeOptions = webdriver.ChromeOptions()
         chromeOptions.add_argument('--headless')
+        chromeOptions.add_argument('--no-sandbox')
+        chromeOptions.add_argument('--disable-gpu')
+        chromeOptions.add_argument('--disable-dev-shm-usage')
         self.brower = webdriver.Chrome(chrome_options=chromeOptions)
         self.brower.get(self.baseUrl)
         html = self.brower.page_source
@@ -266,39 +275,40 @@ class GetPictureDetail:
                 create.insertText(category1, category2, 2, detail, imageInfos, thumbInfos)
         self.brower.quit()
 
-overTimeHandle.main()
-url = "http://www.mmonly.cc/"
-navbar = GetNavbar(url)
-navbars = navbar.getNavbar()
-navbars.append({'category': '美女图片', 'href': 'http://www.mmonly.cc/mmtp/'})
-navbar.close()
-def worke(nav):
-    # nav = {'category': '其他图片', 'href': 'http://www.mmonly.cc/qttp/'}
-    listItem = GetList(nav)
-    listItem.main()
-thres = [threading.Thread(target=worke, args=(nav,))
-            for nav in navbars]
-# 开始执行线程
-[thr.start() for thr in thres]
-# 等待线程执行结束
-[thr.join() for thr in thres]
-# while True:
-#     length=len(threading.enumerate())#枚举返回个列表
-#     print('当前运行的线程数为：%d'%length)
-#     if length<=1:
-#         break
+code = overTimeHandle.main()
+if code != 100200:
+    url = "http://www.mmonly.cc/"
+    navbar = GetNavbar(url)
+    navbars = navbar.getNavbar()
+    navbars.append({'category': '美女图片', 'href': 'http://www.mmonly.cc/mmtp/'})
+    navbar.close()
+    def worke(nav):
+        # nav = {'category': '其他图片', 'href': 'http://www.mmonly.cc/qttp/'}
+        listItem = GetList(nav)
+        listItem.main()
+    thres = [threading.Thread(target=worke, args=(nav,))
+                for nav in navbars]
+    # 开始执行线程
+    [thr.start() for thr in thres]
+    # 等待线程执行结束
+    [thr.join() for thr in thres]
+    # while True:
+    #     length=len(threading.enumerate())#枚举返回个列表
+    #     print('当前运行的线程数为：%d'%length)
+    #     if length<=1:
+    #         break
 
 
-# navbar1 = {'category': '其他图片', 'href': 'http://www.mmonly.cc/qttp/'}
-# listItem = GetList(navbar1)
-# listItem.main()
+    # navbar1 = {'category': '其他图片', 'href': 'http://www.mmonly.cc/qttp/'}
+    # listItem = GetList(navbar1)
+    # listItem.main()
 
 
-# detail = {'title': '女性脚背上的蜻蜓纹身图案', 'image': 'http://t1.hxzdhn.com/uploads/tu/201810/9999/rnce5e970959.jpg', 'detail-href': 'http://www.mmonly.cc/sgtp/jrsg/279337.html', 'pic-count': 4}
-# detail = {'title': '高广泽炫酷写真 玩转艺术范儿', 'image': 'http://t1.hxzdhn.com/uploads/tu/201811/9999/50eda7caf2.jpg', 'detail-href': 'http://www.mmonly.cc/sgtp/omsg/279836.html', 'pic-count': 4}
-# d = GetPictureDetail(detail)
-# d.main()
+    # detail = {'title': '女性脚背上的蜻蜓纹身图案', 'image': 'http://t1.hxzdhn.com/uploads/tu/201810/9999/rnce5e970959.jpg', 'detail-href': 'http://www.mmonly.cc/sgtp/jrsg/279337.html', 'pic-count': 4}
+    # detail = {'title': '高广泽炫酷写真 玩转艺术范儿', 'image': 'http://t1.hxzdhn.com/uploads/tu/201811/9999/50eda7caf2.jpg', 'detail-href': 'http://www.mmonly.cc/sgtp/omsg/279836.html', 'pic-count': 4}
+    # d = GetPictureDetail(detail)
+    # d.main()
 
-# string = "编辑：唯一图库 \xa0\xa0\xa0更新时间：2018-10-30 09:40"
-#
-# print(re.findall(re.compile("更新时间：(.*?)\Z"), string)[0])
+    # string = "编辑：唯一图库 \xa0\xa0\xa0更新时间：2018-10-30 09:40"
+    #
+    # print(re.findall(re.compile("更新时间：(.*?)\Z"), string)[0])

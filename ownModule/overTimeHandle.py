@@ -26,4 +26,7 @@ def main(check = True, objectName=None):
             print(db.sql(sql))
             # db.closeall()
             rmdir(objectDir)
+            return 100200
+        else:
+            return None
 
