@@ -168,10 +168,11 @@ class GetTextDetail:
     def main(self):
         print("开始获取图文详情")
         chromeOptions = webdriver.ChromeOptions()
-        chromeOptions.add_argument("--headLess")
+        chromeOptions.add_argument("--headless")
         chromeOptions.add_argument('--no-sandbox')
         chromeOptions.add_argument('--disable-gpu')
         chromeOptions.add_argument('--disable-dev-shm-usage')
+        chromeOptions.add_argument('--window-size=1024,768')
         self.browes = webdriver.Chrome(chrome_options=chromeOptions)
         self.browes.get(self.baseUrl)
         self.detailhtml = self.browes.page_source
