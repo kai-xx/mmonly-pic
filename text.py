@@ -74,8 +74,14 @@ class GetTextList:
                 }
                 self.count += 1
                 print("当前第", self.count, "获取的图文信息为：", list)
-                detail = GetTextDetail(detailHref, list)
-                detail.main()
+                create = CreateData()
+                title = list['title']
+                if create.checkText(title) == None:
+                    print("标题为:", title, "数据不存在，开始获取详情")
+                    detail = GetTextDetail(detailHref, list)
+                    detail.main()
+                else:
+                    print("标题为:", title, "数据已经存在，跳过")
             except Exception as e:
                 print("获取图文详情异常，错误信息为：", e)
                 continue

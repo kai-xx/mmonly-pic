@@ -163,8 +163,15 @@ class GetList:
         return
     def getPictureDetail(self):
         for list in self.lists:
-            d = GetPictureDetail(list)
-            d.main()
+            create = CreateData()
+            title = list['title']
+            if create.checkText(title) == None:
+                print("标题为:", title, "数据不存在，开始获取详情")
+                d = GetPictureDetail(list)
+                d.main()
+            else:
+                print("标题为:", title, "数据已经存在，跳过")
+
         return
     def getText(self):
         return
