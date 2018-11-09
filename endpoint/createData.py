@@ -77,7 +77,7 @@ class CreateData:
         shortTitle = title
         if len(shortTitle) > 36:
             shortTitle = ""
-        thumb = thumbInfo[0]['path'] if len(thumbInfo) > 0 else ""
+        thumb = self.getThumbImage(imgInfo, thumbInfo)
         author = detail['author'] if detail['author'] else "admin"
         description = detail['intro']
         if len(description) > 200:
@@ -219,3 +219,18 @@ class CreateData:
             return tag['id']
         else:
             return None
+
+    def getThumbImage(self, imageInfo, thumbInfo):
+        thumb = ""
+        if len(thumbInfo) > 0:
+            if 'path' in thumbInfo[0]:
+                thumb = thumbInfo[0]['path']
+
+        if not thumb:
+            for image in imageInfo:
+                if 'path' in image:
+                    thumb = image['path']
+                    break
+
+        return thumb
+
