@@ -196,6 +196,7 @@ class GetTextDetail:
             "date": date,
             "viws": viws,
             "intro": intro,
+            "author": "",
             "content": content,
             "categorys": categorys
         }
