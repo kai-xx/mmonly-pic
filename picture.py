@@ -229,13 +229,16 @@ class GetPictureDetail:
         else:
             date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         if len(images) > 0:
-            print("抓取到的图片信息为：", {
-                "images": images,
-                "categorys": categorys,
-                "author": author,
+            detail = {
+                'title': self.picture['title'],
                 "date": date,
-                "detail": detail
-            })
+                "viws": 0,
+                "intro": "",
+                "author": author,
+                "content": detail,
+                "categorys": categorys
+            }
+            print("抓取到的图片信息为：", detail)
             create = CreateData()
             # 增加导航信息
             category1 = 0
