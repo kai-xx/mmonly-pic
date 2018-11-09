@@ -34,6 +34,7 @@ class GetNavbar:
         chromeOptions.add_argument('--no-sandbox')
         chromeOptions.add_argument('--disable-gpu')
         chromeOptions.add_argument('--disable-dev-shm-usage')
+        chromeOptions.add_argument('--window-size=1024,768')
         self.browser = webdriver.Chrome(chrome_options=chromeOptions)
         self.browser.get(self.baseUrl)
         # self.homeHtml = pq(self.browser.page_source)
@@ -130,6 +131,7 @@ class GetList:
         chromeOptions.add_argument('--no-sandbox')
         chromeOptions.add_argument('--disable-gpu')
         chromeOptions.add_argument('--disable-dev-shm-usage')
+        chromeOptions.add_argument('--window-size=1024,768')
         self.brower = webdriver.Chrome(chrome_options=chromeOptions)
         print("--------导航为", self.navbarInfo['category'], "开始获取数据--------")
         # 初始化页面并获取第一页数据
