@@ -76,7 +76,8 @@ class GetTextList:
                 print("当前第", self.count, "获取的图文信息为：", list)
                 detail = GetTextDetail(detailHref, list)
                 detail.main()
-            except:
+            except Exception as e:
+                print("获取图文详情异常，错误信息为：", e)
                 continue
         print("结束---查询链接为：", url)
     def waitForGetAllData(self):
@@ -164,6 +165,7 @@ class GetTextDetail:
         return str(soap)
 
     def main(self):
+        print("开始获取图文详情")
         chromeOptions = webdriver.ChromeOptions()
         chromeOptions.add_argument("--headLess")
         chromeOptions.add_argument('--no-sandbox')
