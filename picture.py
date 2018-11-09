@@ -267,14 +267,6 @@ class GetPictureDetail:
             # 写入数据
             if create.checkText(self.picture['title']) == None:
                 # 图片必须是列表
-                detail = {
-                    'title': self.picture['title'],
-                    "date": date,
-                    "viws": 0,
-                    "intro": "",
-                    "content": detail,
-                    "categorys": categorys
-                }
                 create.insertText(category1, category2, 2, detail, imageInfos, thumbInfos)
         self.brower.quit()
 
