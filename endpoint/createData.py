@@ -58,117 +58,128 @@ class CreateData:
             return None
 
     def insertText(self, category1, category2, channel, detail, imgInfo, thumbInfo):
-        if category2:
-            cate = category2
-        elif category1:
-            cate = category1
-        else:
-            cate = 0
-        if detail['date']:
-            senddate = int(time.mktime(time.strptime(detail['date'], '%Y-%m-%d %H:%M')))
-        else:
-            senddate = int(time.time())
-        # 第一步骤写入 表名 ："+ self.prefix +"arctiny
-        sql1 = "INSERT INTO `"+ self.prefix +"arctiny` (`typeid`, `typeid2`, `arcrank`, `channel`, `senddate`, `sortrank`, `mid`) " \
-               "VALUES (%d, 0, 0, %d, %d, %d, 1)" % (category2, channel, senddate, senddate)
-        aid = self.db.add(sql1)
-        click = random.randint(70, 800)
-        title = detail['title']
-        shortTitle = title
-        if len(shortTitle) > 36:
-            shortTitle = ""
-        thumb = self.getThumbImage(imgInfo, thumbInfo)
-        author = detail['author'] if detail['author'] else "admin"
-        description = detail['intro']
-        if len(description) > 200:
-            description = ""
+        try:
+            if category2:
+                cate = category2
+            elif category1:
+                cate = category1
+            else:
+                cate = 0
+            if detail['date']:
+                senddate = int(time.mktime(time.strptime(detail['date'], '%Y-%m-%d %H:%M')))
+            else:
+                senddate = int(time.time())
+            # 第一步骤写入 表名 ："+ self.prefix +"arctiny
+            sql1 = "INSERT INTO `" + self.prefix + "arctiny` (`typeid`, `typeid2`, `arcrank`, `channel`, `senddate`, `sortrank`, `mid`) " \
+                                                   "VALUES (%d, 0, 0, %d, %d, %d, 1)" % (
+                   category2, channel, senddate, senddate)
+            aid = self.db.add(sql1)
+            click = random.randint(70, 800)
+            title = detail['title']
+            shortTitle = title
+            if len(shortTitle) > 36:
+                shortTitle = ""
+            thumb = self.getThumbImage(imgInfo, thumbInfo)
+            author = detail['author'] if detail['author'] else "admin"
+            description = detail['intro']
+            if len(description) > 200:
+                description = ""
 
-        body = detail['content']
-        if aid:
-            try:
-                # 第二走写入 主档案表 表名："+ self.prefix +"archives
-                sql2 = "INSERT INTO `"+ self.prefix +"archives` (`id`, `typeid`, `typeid2`, `sortrank`, `flag`, `ismake`, " \
-                       "`channel`, `arcrank`, `click`, `money`, `title`, `shorttitle`, `color`, " \
-                       "`writer`, `source`, `litpic`, `pubdate`, `senddate`, `mid`, `keywords`, " \
-                       "`lastpost`, `scores`, `goodpost`, `badpost`, `voteid`, `notpost`, `description`, " \
-                       "`filename`, `dutyadmin`, `tackid`, `mtype`, `weight`) " \
-                       "VALUES (%d, %d, 0, %d, 'p', -1, " \
-                       "%d, 0, %d, 0, '%s', '%s', '', " \
-                       "'%s', '未知', '%s', %d, %d, 1, '', " \
-                       "0, 0, 0, 0, 0, 0, '%s', " \
-                       "'', 1, 0, 0, 0)" % (aid, cate, senddate,
-                                            channel, click, title, shortTitle,
-                                            author, thumb, senddate, senddate,
-                                            description)
-                archives = self.db.add(sql2)
-                print("第二走写入 主档案表 完成，等待后续处理")
-                if type(archives) != int:
-                    print("第二走写入 主档案表 异常 回退")
-                    sqld1 = "delete from "+ self.prefix +"arctiny where id = %d" % (aid,)
-                    self.db.sql(sqld1)
-                    return None
+            body = detail['content']
+            if aid:
                 try:
-                    # 第三步写入 附屬表表 表名：channel=2->"+ self.prefix +"addonimages  channel=1->"+ self.prefix +"addoninfos
-                    if channel == 1:
-                        sql3 = "INSERT INTO `"+ self.prefix +"addonarticle` (`aid`, `typeid`, `body`, `redirecturl`, `templet`, `userip`) " \
-                               "VALUES (%d, %d, '%s', '', '', '127.0.0.1')" % (aid, cate, body)
-                    if channel == 2:
-                        sql3 = "INSERT INTO `"+ self.prefix +"addonimages` (`aid`, `typeid`, `pagestyle`, `maxwidth`, " \
-                               "`imgurls`, `row`, `col`, `isrm`, `ddmaxwidth`, `pagepicnum`, " \
-                               "`templet`, `userip`, `redirecturl`, `body`) " \
-                               "VALUES (%d, %d, 2, 800, " \
-                               "'%s', " \
-                               "3, 4, 1, 200, 12, " \
-                               "'', '127.0.0.1', '', '%s')" % (aid, cate,
-                                                               self.handleImageUrls(imgInfo), body)
-                    aux = self.db.add(sql3)
-                    print("第三步写入 附屬表表完成，等待后续处理")
-                    if type(aux) != int:
-                        print("第三步写入 附屬表表 异常 回退")
-                        sqld1 = "delete from "+ self.prefix +"arctiny where id = %d" % (aid,)
-                        sqld2 = "delete from "+ self.prefix +"archives where id = %d" % (aid,)
+                    # 第二走写入 主档案表 表名："+ self.prefix +"archives
+                    sql2 = "INSERT INTO `" + self.prefix + "archives` (`id`, `typeid`, `typeid2`, `sortrank`, `flag`, `ismake`, " \
+                                                           "`channel`, `arcrank`, `click`, `money`, `title`, `shorttitle`, `color`, " \
+                                                           "`writer`, `source`, `litpic`, `pubdate`, `senddate`, `mid`, `keywords`, " \
+                                                           "`lastpost`, `scores`, `goodpost`, `badpost`, `voteid`, `notpost`, `description`, " \
+                                                           "`filename`, `dutyadmin`, `tackid`, `mtype`, `weight`) " \
+                                                           "VALUES (%d, %d, 0, %d, 'p', -1, " \
+                                                           "%d, 0, %d, 0, '%s', '%s', '', " \
+                                                           "'%s', '未知', '%s', %d, %d, 1, '', " \
+                                                           "0, 0, 0, 0, 0, 0, '%s', " \
+                                                           "'', 1, 0, 0, 0)" % (aid, cate, senddate,
+                                                                                channel, click, title, shortTitle,
+                                                                                author, thumb, senddate, senddate,
+                                                                                description)
+                    archives = self.db.add(sql2)
+                    print("第二走写入 主档案表 完成，等待后续处理")
+                    if type(archives) != int:
+                        print("第二走写入 主档案表 异常 回退")
+                        sqld1 = "delete from " + self.prefix + "arctiny where id = %d" % (aid,)
+                        self.db.sql(sqld1)
+                        return None
+                    try:
+                        # 第三步写入 附屬表表 表名：channel=2->"+ self.prefix +"addonimages  channel=1->"+ self.prefix +"addoninfos
+                        if channel == 1:
+                            sql3 = "INSERT INTO `" + self.prefix + "addonarticle` (`aid`, `typeid`, `body`, `redirecturl`, `templet`, `userip`) " \
+                                                                   "VALUES (%d, %d, '%s', '', '', '127.0.0.1')" % (
+                                   aid, cate, body)
+                        if channel == 2:
+                            sql3 = "INSERT INTO `" + self.prefix + "addonimages` (`aid`, `typeid`, `pagestyle`, `maxwidth`, " \
+                                                                   "`imgurls`, `row`, `col`, `isrm`, `ddmaxwidth`, `pagepicnum`, " \
+                                                                   "`templet`, `userip`, `redirecturl`, `body`) " \
+                                                                   "VALUES (%d, %d, 2, 800, " \
+                                                                   "'%s', " \
+                                                                   "3, 4, 1, 200, 12, " \
+                                                                   "'', '127.0.0.1', '', '%s')" % (aid, cate,
+                                                                                                   self.handleImageUrls(
+                                                                                                       imgInfo), body)
+                        aux = self.db.add(sql3)
+                        print("第三步写入 附屬表表完成，等待后续处理")
+                        if type(aux) != int:
+                            print("第三步写入 附屬表表 异常 回退")
+                            sqld1 = "delete from " + self.prefix + "arctiny where id = %d" % (aid,)
+                            sqld2 = "delete from " + self.prefix + "archives where id = %d" % (aid,)
+                            self.db.sql(sqld1)
+                            self.db.sql(sqld2)
+                            return None
+                        else:
+                            self.addTags(detail, aid, cate, senddate)
+                    except Exception as e:
+                        print(
+                            "第三步写入 附屬表表 表名：channel=2->" + self.prefix + "addonimages  channel=1->" + self.prefix + "addoninfos",
+                            e)
+                        sqld1 = "delete from " + self.prefix + "arctiny where id = %d" % (aid,)
+                        sqld2 = "delete from " + self.prefix + "archives where id = %d" % (aid,)
                         self.db.sql(sqld1)
                         self.db.sql(sqld2)
                         return None
-                    else:
-                        self.addTags(detail, aid, cate, senddate)
                 except Exception as e:
-                    print("第三步写入 附屬表表 表名：channel=2->"+ self.prefix +"addonimages  channel=1->"+ self.prefix +"addoninfos", e)
-                    sqld1 = "delete from "+ self.prefix +"arctiny where id = %d" % (aid,)
-                    sqld2 = "delete from "+ self.prefix +"archives where id = %d" % (aid,)
+                    print("第二走写入 主档案表 异常 表名：" + self.prefix + "archives", e)
+                    sqld1 = "delete from " + self.prefix + "arctiny where id = %d" % (aid,)
                     self.db.sql(sqld1)
-                    self.db.sql(sqld2)
                     return None
-            except Exception as e:
-                print("第二走写入 主档案表 异常 表名："+ self.prefix +"archives", e)
-                sqld1 = "delete from "+ self.prefix +"arctiny where id = %d" % (aid,)
-                self.db.sql(sqld1)
+                # 第四步写入 图片表 表名："+ self.prefix +"uploads
+                sql4 = "INSERT INTO `" + self.prefix + "uploads` (`arcid`, `title`, `url`, `mediatype`, `width`, `height`, " \
+                                                       "`playtime`, `filesize`, `uptime`, `mid`) VALUES"
+                sql4Value = ""
+                for image in imgInfo:
+                    try:
+                        sql4Value += ",(%d, '%s', '%s', 0, '%s', '%s', '0', %d, %d, 1)" % (aid, title, image['path'],
+                                                                                           str(image['width']),
+                                                                                           str(image['height']),
+                                                                                           image['size'], senddate)
+                    except Exception as e:
+                        print("第四步图片处理出现异常(主图)，错误信息为：", e)
+                        continue
+                for image1 in thumbInfo:
+                    try:
+                        sql4Value += ",(%d, '%s', '%s', 0, '%s', '%s', '1', %d, %d, 1)" % (aid, title, image1['path'],
+                                                                                           str(image1['width']),
+                                                                                           str(image1['height']),
+                                                                                           image1['size'], senddate)
+                    except Exception as e:
+                        print("第四步图片处理出现异常(缩略图)，错误信息为：", e)
+                        continue
+                if sql4Value:
+                    self.db.add(sql4 + sql4Value.strip(','))
+            else:
+                print("标题为：", title, "的数据添加失败！")
                 return None
-            # 第四步写入 图片表 表名："+ self.prefix +"uploads
-            sql4 = "INSERT INTO `"+ self.prefix +"uploads` (`arcid`, `title`, `url`, `mediatype`, `width`, `height`, " \
-                   "`playtime`, `filesize`, `uptime`, `mid`) VALUES"
-            sql4Value = ""
-            for image in imgInfo:
-                try:
-                    sql4Value += ",(%d, '%s', '%s', 0, '%s', '%s', '0', %d, %d, 1)" % (aid, title, image['path'],
-                                                                                   str(image['width']), str(image['height']), image['size'], senddate)
-                except Exception as e:
-                    print("第四步图片处理出现异常(主图)，错误信息为：", e)
-                    continue
-            for image1 in thumbInfo:
-                try:
-                    sql4Value += ",(%d, '%s', '%s', 0, '%s', '%s', '1', %d, %d, 1)" % (aid, title, image1['path'],
-                                                                                   str(image1['width']),
-                                                                                   str(image1['height']),
-                                                                                   image1['size'], senddate)
-                except Exception as e:
-                    print("第四步图片处理出现异常(缩略图)，错误信息为：", e)
-                    continue
-            if sql4Value:
-                self.db.add(sql4 + sql4Value.strip(','))
-        else:
-            print("标题为：", title, "的数据添加失败！")
-            return None
+        except Exception as e:
+            print("数据主体添加失败，错误信息为：", e)
+            return
         # self.db.closeall()
 
     def handleImageUrls(self, images):
