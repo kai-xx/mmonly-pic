@@ -110,6 +110,7 @@ class GetList:
         chromeOptions.add_argument('--no-sandbox')
         chromeOptions.add_argument('--disable-gpu')
         chromeOptions.add_argument('--disable-dev-shm-usage')
+        chromeOptions.add_argument('--window-size=1024,768')
         self.brower = webdriver.Chrome(chrome_options=chromeOptions)
 
         print("--------", "开始获取图文列表信息", "--------")
@@ -135,6 +136,7 @@ class GetDetail:
         chromeOptions.add_argument('--no-sandbox')
         chromeOptions.add_argument('--disable-gpu')
         chromeOptions.add_argument('--disable-dev-shm-usage')
+        chromeOptions.add_argument('--window-size=1024,768')
         self.brower = webdriver.Chrome(chrome_options=chromeOptions)
         tool = Tool()
         self.brower.get(self.baseUrl)

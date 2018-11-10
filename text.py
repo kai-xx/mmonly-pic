@@ -16,6 +16,8 @@ from ownModule import overTimeHandle
 from endpoint.createData import CreateData
 from ownModule.mysql import MySQLSingle
 from endpoint import getPageNumber
+from endpoint.innerChain import InnerChain
+from endpoint import pseudoStatic
 class GetNav:
     def __init__(self, baseUrl):
         self.baseUrl = baseUrl
@@ -153,24 +155,6 @@ class GetTextDetail:
                 categorys.append(category)
         return categorys
 
-    def handleContent(self, tool):
-        db = MySQLSingle()
-        sql = 'select * from pic_sysconfig where varname="cfg_basehost"'
-        config = db.getone(sql)
-        if config:
-            host = config['value']
-        else:
-            host = "http://127.0.0.1"
-        html = tool.replace(self.html(".imgcont").html())
-        soap = BeautifulSoup(html, "lxml")
-        for i in range(0,len(soap.find_all('img'))):
-            down = DownLoadPicture(soap.find_all('img')[i].get('original'))
-            imageInfo, thumbInfo = down.handleDown()
-            path = host + imageInfo['path']
-            soap.find_all('img')[i]['original'] = path
-            soap.find_all('img')[i]['src'] = path
-        return str(soap)
-
     def main(self):
         print("开始获取图文详情")
         chromeOptions = webdriver.ChromeOptions()
@@ -227,6 +211,26 @@ class GetTextDetail:
             # 图片必须是列表
             create.insertText(category1, category2, 1, detail, [imageInfo], [thumbInfo])
         self.browes.quit()
+    def handleContent(self, tool):
+        db = MySQLSingle()
+        sql = 'select * from pic_sysconfig where varname="cfg_basehost"'
+        config = db.getone(sql)
+        if config:
+            host = config['value']
+        else:
+            host = "http://127.0.0.1"
+        html = tool.replace(self.html(".imgcont").html())
+        soap = BeautifulSoup(html, "lxml")
+        for i in range(0,len(soap.find_all('img'))):
+            down = DownLoadPicture(soap.find_all('img')[i].get('original'))
+            imageInfo, thumbInfo = down.handleDown()
+            path = host + imageInfo['path']
+            soap.find_all('img')[i]['original'] = path
+            soap.find_all('img')[i]['src'] = path
+        content = str(soap)
+        content = pseudoStatic.handleStatic(content)
+        content = InnerChain(content=content).replace()
+        return content
 
 #         图片下载demo
 # url = "http://t1.hxzdhn.com/uploads/tu/201706/9999/11df03cb01.jpg"
