@@ -1,22 +1,23 @@
 # -*- coding: utf-8 -*
 __author__ = 'double k'
 
-from controller.game.news import GetDetail
 from controller.game.news import GetList
 from controller.game.download import GetList as GetDownLoadList
-from controller.game.download import GetDetail as GetDownLoadDetail
 from controller.game.patch import GetList as GetPatchList
-from controller.game.patch import GetDetail as GetPatchDetail
 from controller.game.qqvs import GetList as GetQqvsList
-from controller.game.qqvs import GetDetail as GetQqvsDetail
 from controller.game.vrNews1 import GetList as GetVrNews1List
-from controller.game.vrNews1 import GetDetail as GetVrNews1Detail
 from controller.game.vrNews2 import GetList as GetvrNews2List
-from controller.game.vrNews2 import GetDetail as GetvrNews2Detail
 from controller.game.mgame import GetList as GetmgameList
-from controller.game.mgame import GetDetail as GetmgameDetail
 from controller.game.ids import GetList as GetidsList
-from controller.game.ids import GetDetail as GetidsDetail
+# from controller.game.news import GetDetail
+# from controller.game.download import GetDetail as GetDownLoadDetail
+# from controller.game.patch import GetDetail as GetPatchDetail
+# from controller.game.qqvs import GetDetail as GetQqvsDetail
+# from controller.game.vrNews1 import GetDetail as GetVrNews1Detail
+# from controller.game.vrNews2 import GetDetail as GetvrNews2Detail
+# from controller.game.mgame import GetDetail as GetmgameDetail
+# from controller.game.ids import GetDetail as GetidsDetail
+
 import time
 from ownModule import overTimeHandle
 from threading import Thread

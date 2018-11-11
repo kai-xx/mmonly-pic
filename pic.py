@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*
 __author__ = 'double k'
 
-from controller.picture.picture import GetDetail
+# from controller.picture.picture import GetDetail
 from controller.picture.picture import GetList
-from endpoint.innerChain import InnerChain
-from endpoint import pseudoStatic
 import time
 from ownModule import overTimeHandle
 from threading import Thread

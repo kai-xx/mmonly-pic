@@ -18,7 +18,8 @@ from ownModule.tool import Tool
 from endpoint.createData import CreateData
 from endpoint import getPageNumber
 from ownModule.mysql import MySQLSingle
-
+from endpoint.innerChain import InnerChain
+from endpoint import pseudoStatic
 
 class GetList:
     def __init__(self, baseUrl, waitTime):
@@ -225,5 +226,7 @@ class GetDetail:
             imageInfo, thumbInfo = down.handleDown()
             path = host + imageInfo['path']
             imgSoap.find_all('img')[i]['src'] = path
-
-        return imgSoap.prettify()
+        content = imgSoap.prettify()
+        content = pseudoStatic.handleStatic(content)
+        content = InnerChain(content=content).replace()
+        return content

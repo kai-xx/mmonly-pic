@@ -10,12 +10,10 @@ from selenium.webdriver.support import expected_conditions as EC
 from pyquery import PyQuery as pq
 import re
 import datetime
-from bs4 import BeautifulSoup
 from ownModule.down import DownLoadPicture
 from ownModule.tool import Tool
 from endpoint.createData import CreateData
 from endpoint import getPageNumber
-from ownModule.mysql import MySQLSingle
 from ownModule.brower import Brower
 
 class GetList:
