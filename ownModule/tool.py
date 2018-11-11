@@ -7,6 +7,8 @@ from re import sub
 class Tool:
     # 删除超链接标签
     removeAddr = compile('<a.*?>|</a>')
+    # 删除单引号
+    removeApostrophe = compile('\'')
     # 将换行符或双换行符替换为\n
     replaceBR = compile('\t|\xa0|\u3000')
 
@@ -16,5 +18,6 @@ class Tool:
         self.x = x
         self.x = sub(self.removeAddr, "", self.x)
         self.x = sub(self.replaceBR, " ", self.x)
+        self.x = sub(self.removeApostrophe, "", self.x)
         # strip()将前后多余内容删除
         return self.x.strip()

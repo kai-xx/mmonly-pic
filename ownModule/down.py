@@ -34,6 +34,9 @@ class DownLoadPicture:
 
     def handleDown(self):
         print("下载链接为：", self.url, "，开始下载")
+        if not self.url:
+            print("下载图片失败，失败链接为：", self.url, ",错误信息为：链接不合法")
+            return {}, {}
         if not re.match("^http(s)?.*?", self.url):
             print("下载图片失败，失败链接为：", self.url, ",错误信息为：链接不合法")
             return {}, {}

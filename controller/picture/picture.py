@@ -207,27 +207,7 @@ class GetDetail:
             print("抓取数据失败，链接为：", self.baseUrl, "，错误信息为：", e)
         finally:
             self.brower.quit()
-    def handleContent(self, html, tool):
-        db = MySQLSingle()
-        db.get_conn('gameali')
-        sql = 'select * from game_sysconfig where varname="cfg_basehost"'
-        config = db.getone(sql)
-        if config:
-            host = config['value']
-        else:
-            host = "http://127.0.0.1"
-        body = html(".vr_detail_left_news").html()
-        body = tool.replace(body)
-        imgSoap = BeautifulSoup(body, "lxml")
-        for i in range(0, len(imgSoap.find_all('img'))):
-            del imgSoap.find_all('img')[i]['onclick']
-            del imgSoap.find_all('img')[i]['onmouseover']
-            down = DownLoadPicture(imgSoap.find_all('img')[i].get('src'))
-            imageInfo, thumbInfo = down.handleDown()
-            path = host + imageInfo['path']
-            imgSoap.find_all('img')[i]['src'] = path
 
-        return imgSoap.prettify()
     def getPictures(self, maxNum, defaultImage=None):
         images = []
         maxNum = int(maxNum) + 1
