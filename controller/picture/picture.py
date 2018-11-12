@@ -178,8 +178,7 @@ class GetDetail:
             if len(imageCountHtml) > 0:
                 imageCount = re.search(re.compile("(?<=共)(\d+)(?=页)", re.DOTALL), imageCountHtml.eq(0).text()).group()
             else:
-                print("图片数量获取异常,信息为：", imageCountHtml)
-                return
+                imageCount = 0
             defaultImage = fatHtml(".pic-down").children().attr.href
 
             create = CreateData()
@@ -194,19 +193,20 @@ class GetDetail:
                     category2 = create.checkAndInsertCate(categorys[key], category1, 2)
             # 下载图片 图片获取缩略图
             down = DownLoadPicture(self.listInfo['thumb-img'], True)
-            imageInfo, thumbInfo = down.handleDown()
-            if not thumbInfo:
-                thumbInfo = imageInfo
+            imageInfo, thumb = down.handleDown()
+            if not thumb:
+                thumb = imageInfo
             images = self.getPictures(imageCount, defaultImage)
             imageInfos = []
             for image in images:
                 down = DownLoadPicture(image)
                 imageInfo, thumbInfo = down.handleDown()
                 imageInfos.append(imageInfo)
+
             # 写入数据
             if create.checkText(title) == None:
                 # 图片必须是列表
-                create.insertText(category1, category2, 2, detail, imageInfos, [thumbInfo])
+                create.insertText(category1, category2, 2, detail, imageInfos, [thumb])
             self.brower.close()
 
         except Exception as e:
@@ -216,16 +216,17 @@ class GetDetail:
 
     def getPictures(self, maxNum, defaultImage=None):
         images = []
-        maxNum = int(maxNum) + 1
         if defaultImage:
             images.append(defaultImage)
-        for i in range(2, maxNum):
-            end = "_" + str(i) + ".html"
-            href = re.sub(".html", end, self.baseUrl)
-            self.brower.get(href)
-            imageHtml = pq(self.brower.page_source)
-            image = imageHtml(".pic-down").children().attr.href
-            if image:
-                images.append(image)
+        if maxNum > 0:
+            maxNum = int(maxNum) + 1
+            for i in range(2, maxNum):
+                end = "_" + str(i) + ".html"
+                href = re.sub(".html", end, self.baseUrl)
+                self.brower.get(href)
+                imageHtml = pq(self.brower.page_source)
+                image = imageHtml(".pic-down").children().attr.href
+                if image:
+                    images.append(image)
         print("图片集信息为：", images)
         return images
