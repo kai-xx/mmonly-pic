@@ -167,6 +167,8 @@ class CreateData:
                         print("第四步图片处理出现异常(主图)，错误信息为：", e)
                         continue
                 for image1 in thumbInfo:
+                    if "path" not in image1:
+                        continue
                     try:
                         sql4Value += ",(%d, '%s', '%s', 0, '%s', '%s', '1', %d, %d, 1)" % (aid, title, image1['path'],
                                                                                            str(image1['width']),
