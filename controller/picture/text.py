@@ -134,6 +134,12 @@ class GetDetail:
         self.html = self.brower.page_source
         fatHtml = pq(self.html)
         # 标题有多种样式  现发现 .newstit .newstit1
+        socp = BeautifulSoup(self.html, "lxml")
+        keywordsEle = socp.select('meta[name=keywords]')
+        descriptionEle = socp.select('meta[name=description]')
+        keywords = keywordsEle[0].get("content") if len(keywordsEle) > 0 else ""
+        description = descriptionEle[0].get("content") if len(descriptionEle) > 0 else ""
+
         title = fatHtml(".show-cont-title").children().children().text()
         info = fatHtml(".updateTime").text()
         dateObj = re.search(re.compile("\d+-\d+-\d+ \d+:\d+"), info)
@@ -174,7 +180,9 @@ class GetDetail:
             "intro": intro,
             "content": content,
             "categorys": categorys,
-            "tags": tagsList
+            "tags": tagsList,
+            "keywords": keywords,
+            "description": description,
         }
         print("获取到的信息信息为：", detail)
         create = CreateData()

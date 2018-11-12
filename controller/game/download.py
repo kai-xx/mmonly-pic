@@ -145,6 +145,14 @@ class GetDetail:
         self.brower.get(self.baseUrl)
         self.html = self.brower.page_source
         fatHtml = pq(self.html)
+
+        socp = BeautifulSoup(self.html, "lxml")
+        keywordsEle = socp.select('meta[name=keywords]')
+        descriptionEle = socp.select('meta[name=description]')
+        keywords = keywordsEle[0].get("content") if len(keywordsEle) > 0 else ""
+        description = descriptionEle[0].get("content") if len(descriptionEle) > 0 else ""
+
+
         # 标题有多种样式  现发现 .newstit .newstit1
         title = fatHtml(".detail_game_l .detail_game_l_r .detail_game_l_r_tit .detail_game_l_r_ctit").children().eq(0).text()
         info = fatHtml(".detail_game_l_r_info").text()
@@ -188,7 +196,9 @@ class GetDetail:
             "intro": intro,
             "content": content,
             "categorys": categorys,
-            "tags": tagsList
+            "tags": tagsList,
+            "keywords": keywords,
+            "description": description,
         }
         print("获取到的信息信息为：", detail)
         create = CreateData('gameali', "game_")

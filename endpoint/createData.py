@@ -81,7 +81,8 @@ class CreateData:
                 shortTitle = ""
             thumb = self.getThumbImage(imgInfo, thumbInfo)
             author = detail['author'] if detail['author'] else "admin"
-            description = detail['intro']
+            description = detail['intro'] if detail['intro'] else detail['description']
+            keywords = detail['keywords'] if detail['keywords'] else title
             if len(description) > 200:
                 description = ""
 
@@ -96,11 +97,11 @@ class CreateData:
                                                            "`filename`, `dutyadmin`, `tackid`, `mtype`, `weight`) " \
                                                            "VALUES (%d, %d, 0, %d, 'p', -1, " \
                                                            "%d, 0, %d, 0, '%s', '%s', '', " \
-                                                           "'%s', '未知', '%s', %d, %d, 1, '', " \
+                                                           "'%s', '未知', '%s', %d, %d, 1, '%s', " \
                                                            "0, 0, 0, 0, 0, 0, '%s', " \
                                                            "'', 1, 0, 0, 0)" % (aid, cate, senddate,
                                                                                 channel, click, title, shortTitle,
-                                                                                author, thumb, senddate, senddate,
+                                                                                author, thumb, senddate, senddate, keywords,
                                                                                 description)
                     archives = self.db.add(sql2)
                     print("第二走写入 主档案表 完成，等待后续处理")
@@ -155,6 +156,8 @@ class CreateData:
                                                        "`playtime`, `filesize`, `uptime`, `mid`) VALUES"
                 sql4Value = ""
                 for image in imgInfo:
+                    if "path" not in image:
+                        continue
                     try:
                         sql4Value += ",(%d, '%s', '%s', 0, '%s', '%s', '0', %d, %d, 1)" % (aid, title, image['path'],
                                                                                            str(image['width']),
@@ -185,6 +188,8 @@ class CreateData:
     def handleImageUrls(self, images):
         imageUrls = '{dede:pagestyle maxwidth="800" pagepicnum="12" ddmaxwidth="200" row="3" col="4" value="2"/}\r\n'
         for image in images:
+            if "path" not in image:
+                continue
             path = image["path"]
             width = image["width"]
             height = image["height"]

@@ -15,7 +15,7 @@ from ownModule.tool import Tool
 from endpoint.createData import CreateData
 from endpoint import getPageNumber
 from ownModule.brower import Brower
-
+from bs4 import BeautifulSoup
 class GetList:
     def __init__(self, baseUrl, waitTime, host):
         self.host = host
@@ -127,6 +127,12 @@ class GetDetail:
             self.brower.get(self.baseUrl)
             self.html = self.brower.page_source
             fatHtml = pq(self.html)
+            socp = BeautifulSoup(self.html, "lxml")
+            keywordsEle = socp.select('meta[name=keywords]')
+            descriptionEle = socp.select('meta[name=description]')
+            keywords = keywordsEle[0].get("content") if len(keywordsEle) > 0 else ""
+            description = descriptionEle[0].get("content") if len(descriptionEle) > 0 else ""
+
             title = self.listInfo['title']
             tip = fatHtml(".tip").text()
             authorOrigin = re.findall(re.compile("编辑：(.*?)更新时间："), tip)
@@ -164,7 +170,9 @@ class GetDetail:
                 "intro": intro,
                 "content": content,
                 "categorys": categorys,
-                "tags": ""
+                "tags": "",
+                "keywords": keywords,
+                "description": description,
             }
             imageCountHtml = fatHtml('.pages').children().children()
             if len(imageCountHtml) > 0:
