@@ -202,7 +202,6 @@ class GetDetail:
                 down = DownLoadPicture(image)
                 imageInfo, thumbInfo = down.handleDown()
                 imageInfos.append(imageInfo)
-
             # 写入数据
             if create.checkText(title) == None:
                 # 图片必须是列表
@@ -218,7 +217,7 @@ class GetDetail:
         images = []
         if defaultImage:
             images.append(defaultImage)
-        if maxNum > 0:
+        if int(maxNum) > 0:
             maxNum = int(maxNum) + 1
             for i in range(2, maxNum):
                 end = "_" + str(i) + ".html"
