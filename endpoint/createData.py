@@ -72,7 +72,7 @@ class CreateData:
             # 第一步骤写入 表名 ："+ self.prefix +"arctiny
             sql1 = "INSERT INTO `" + self.prefix + "arctiny` (`typeid`, `typeid2`, `arcrank`, `channel`, `senddate`, `sortrank`, `mid`) " \
                                                    "VALUES (%d, 0, 0, %d, %d, %d, 1)" % (
-                   category2, channel, senddate, senddate)
+                cate, channel, senddate, senddate)
             aid = self.db.add(sql1)
             click = random.randint(70, 800)
             title = detail['title']
