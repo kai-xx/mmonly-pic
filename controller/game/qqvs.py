@@ -47,6 +47,9 @@ class GetList:
             lists = []
             print("第", page, "页，开始获取数据")
             for item in items:
+                if self.count > getPageNumber.getCount():
+                    print("本栏目已经获取", self.count, "条记录，目前允许最大获取数量为：", getPageNumber.getCount())
+                    exit()
                 title = item(".newgl_con_one_tit1").children().text()
                 if not title:
                     continue
@@ -62,7 +65,6 @@ class GetList:
                     "thumb-img": thumbImg,
                     "intro": intro
                 }
-                print(list)
                 lists.append(list)
                 self.count += 1
                 print("当前第", self.count, "获取的图文信息为：", list)
@@ -104,9 +106,7 @@ class GetList:
                 baseUrl = self.host + "/new/" + url
                 self.getHtml(baseUrl, page)
                 page += 1
-                if self.count > getPageNumber.getCount():
-                    print("本栏目已经获取", self.count, "条记录，目前允许最大获取数量为：", getPageNumber.getCount())
-                    return
+
             except TimeoutException:
                 self.isPaging = False
                 print("所有数据已经全部抓完，共抓取", self.count, "条数据")

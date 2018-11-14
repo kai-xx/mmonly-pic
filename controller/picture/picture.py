@@ -30,6 +30,7 @@ class GetList:
 
     def getHtml(self, url, page):
         print(url, "----", page)
+
         self.isPaging = True
         self.brower.get(url)
         self.wait = WebDriverWait(self.brower, self.waitTime)
@@ -42,6 +43,9 @@ class GetList:
             lists = []
             print("第", page, "页，开始获取数据")
             for item in items:
+                if self.count > getPageNumber.getCount():
+                    print("本栏目已经获取", self.count, "条记录，目前允许最大获取数量为：", getPageNumber.getCount())
+                    exit()
                 title = item(".title").children().text()
                 if not title:
                     continue
@@ -96,9 +100,6 @@ class GetList:
                 baseUrl = self.host + url
                 self.getHtml(baseUrl, page)
                 page += 1
-                if self.count > getPageNumber.getCount():
-                    print("本栏目已经获取", self.count, "条记录，目前允许最大获取数量为：", getPageNumber.getCount())
-                    return
             except TimeoutException:
                 self.isPaging = False
                 print("所有数据已经全部抓完，共抓取", self.count, "条数据")
