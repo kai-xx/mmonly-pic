@@ -155,7 +155,7 @@ class GetDetail:
         intro = tool.replace(fatHtml(".Arc_description").text())
         if len(intro) > 200:
             intro = ""
-        content = self.handleContent(fatHtml, tool)
+        content = self.handleContent(fatHtml, tool, title)
 
         # 导航有多种格式 不同样式先发现 .n_nav .n_nav1
         categorysHtml = fatHtml(".show-gps").children().items()
@@ -215,7 +215,7 @@ class GetDetail:
         #     print("抓取数据失败，链接为：", self.baseUrl, "，错误信息为：", e)
         # finally:
         #     self.brower.quit()
-    def handleContent(self, html, tool):
+    def handleContent(self, html, tool, title):
         db = MySQLSingle()
         db.get_conn()
         sql = 'select * from pic_sysconfig where varname="cfg_basehost"'
@@ -238,6 +238,7 @@ class GetDetail:
             path = host + imageInfo['path']
             imgSoap.find_all('img')[i]['original'] = path
             imgSoap.find_all('img')[i]['src'] = path
+            imgSoap.find_all('img')[i]['alt'] = title
         content = imgSoap.prettify()
         content = pseudoStatic.handleStatic(content)
         content = InnerChain(content=content).replace()

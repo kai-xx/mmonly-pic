@@ -164,7 +164,7 @@ class GetDetail:
         author = "admin"
         viws = 0
         intro = fatHtml(".vr_detail_left_top_con").text()
-        content = self.handleContent(fatHtml, tool)
+        content = self.handleContent(fatHtml, tool, title)
         categorysHtml = fatHtml(".vr_detail_left .vr_list_left_tab").children().items()
         categorys = []
         i = 0
@@ -219,7 +219,7 @@ class GetDetail:
         #     print("抓取数据失败，链接为：", self.baseUrl, "，错误信息为：", e)
         # finally:
         #     self.brower.quit()
-    def handleContent(self, html, tool):
+    def handleContent(self, html, tool, title):
         db = MySQLSingle()
         db.get_conn('gameali')
         sql = 'select * from game_sysconfig where varname="cfg_basehost"'
@@ -238,7 +238,7 @@ class GetDetail:
             imageInfo, thumbInfo = down.handleDown()
             path = host + imageInfo['path']
             imgSoap.find_all('img')[i]['src'] = path
-
+            imgSoap.find_all('img')[i]['alt'] = title
         content = imgSoap.prettify()
         content = pseudoStatic.handleStatic(content)
         content = InnerChain(content=content).replace()
