@@ -89,6 +89,9 @@ class GetList:
                 baseUrl = self.baseUrl + url
                 self.getHtml(baseUrl, page)
                 page += 1
+                if self.count > getPageNumber.getCount():
+                    print("本栏目已经获取", self.count, "条记录，目前允许最大获取数量为：", getPageNumber.getCount())
+                    return
             except TimeoutException:
                 self.isPaging = False
                 print("所有数据已经全部抓完，共抓取", self.count, "条数据")

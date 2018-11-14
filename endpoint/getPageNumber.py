@@ -15,3 +15,7 @@ def main():
         return 20
     else:
         return 0
+
+def getCount():
+    count = 100
+    return count

@@ -103,6 +103,9 @@ class GetList:
                 baseUrl = self.host + url
                 self.getHtml(baseUrl, page)
                 page += 1
+                if self.count > getPageNumber.getCount():
+                    print("本栏目已经获取", self.count, "条记录，目前允许最大获取数量为：", getPageNumber.getCount())
+                    return
             except TimeoutException:
                 self.isPaging = False
                 print("所有数据已经全部抓完，共抓取", self.count, "条数据")
@@ -309,9 +312,9 @@ class GetDetail:
                 thumb_tag.append(thumb_img_tag)
             div_tag.append(slides_tag)
             div_tag.append(thumb_tag)
-            js = '	<script type="text/javascript" src="http://game-ali.com/templets/default/slipde/jquery-1.11.0.min.js"></script>' \
-	        '<script type="text/javascript" src="http://game-ali.com/templets/default/slipde/jquery.sliderPro.min.js"></script>' \
-	        '<link rel="stylesheet" type="text/css" href="http://game-ali.com/templets/default/slipde/slider-pro.min.css" media="screen"/>' \
+            js = '	<script type="text/javascript" src="http://gamenice.net/templets/default/slipde/jquery-1.11.0.min.js"></script>' \
+	        '<script type="text/javascript" src="http://gamenice.net/templets/default/slipde/jquery.sliderPro.min.js"></script>' \
+	        '<link rel="stylesheet" type="text/css" href="http://gamenice.net/templets/default/slipde/slider-pro.min.css" media="screen"/>' \
 	        '<script type="text/javascript">' \
 		    '$( document ).ready(function( $ ) { $( "#example3" ).sliderPro({ width: 700, height: 500, fade: true, arrows: true, buttons: false, fullScreen: true, shuffle: true, smallSize: 500, mediumSize: 1000, largeSize: 3000, thumbnailArrows: true, autoplay: false }); });' \
 	        '</script>'
