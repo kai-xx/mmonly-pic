@@ -158,6 +158,10 @@ class GetDetail:
 
         # 标题有多种样式  现发现 .newstit .newstit1
         title = fatHtml(".detail_game_l .detail_game_l_r .detail_game_l_r_tit .detail_game_l_r_ctit").children().eq(0).text()
+        create = CreateData('gameali', "game_")
+        if create.checkText(title) != None:
+            print("标题为:", title, "数据已经存在，跳过")
+            return
         info = fatHtml(".detail_game_l_r_info").text()
         dateObj = re.search(re.compile("\d+-\d+-\d+"), info)
         if dateObj:

@@ -158,6 +158,10 @@ class GetDetail:
         if not title:
             title = fatHtml(".newstit1").text()
 
+        create = CreateData('gameali', "game_")
+        if create.checkText(title) != None:
+            print("标题为:", title, "数据已经存在，跳过")
+            return
         tag = fatHtml(".newstag_l").text()
         dateObj = re.search(re.compile("\d+-\d+-\d+.*?\d+:\d+"), tag)
         if dateObj:

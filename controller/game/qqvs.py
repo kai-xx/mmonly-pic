@@ -158,6 +158,10 @@ class GetDetail:
 
 
         title = fatHtml(".glzjll .glzjshow_tit").text()
+        create = CreateData('gameali', "game_")
+        if create.checkText(title) != None:
+            print("标题为:", title, "数据已经存在，跳过")
+            return
         info = fatHtml(".glzjll .glzjshow_tag").text()
         dateObj = re.search(re.compile("\d+-\d+-\d+ \d+:\d+"), info)
         if dateObj:

@@ -156,6 +156,10 @@ class GetDetail:
 
 
         title = fatHtml(".vr_detail_top .vr_detail_top_title").text()
+        create = CreateData('gameali', "game_")
+        if create.checkText(title) != None:
+            print("标题为:", title, "数据已经存在，跳过")
+            return
         info = fatHtml(".vr_detail_top .vr_detail_top_des .vr_detail_exp").text()
         dateObj = re.search(re.compile("\d+-\d+-\d+"), info)
         if dateObj:
