@@ -11,7 +11,7 @@ class CreateData:
         self.db.get_conn(databaseName)
         self.prefix = prefix
     def checkAndInsertCate(self, cateName, pid, channeltype):
-
+        cateName = cateName.strip()
         sql = "select id from "+ self.prefix +"arctype where typename='%s' and reid=%d" % (cateName, pid)
         cateInfo = self.db.getone(sql)
         if cateInfo:

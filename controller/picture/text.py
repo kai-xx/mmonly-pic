@@ -19,7 +19,7 @@ from endpoint.createData import CreateData
 from endpoint import getPageNumber
 from ownModule.mysql import MySQLSingle
 from ownModule.brower import Brower
-from endpoint.innerChain import InnerChain
+from endpoint.picInnerChain import InnerChain
 from endpoint import pseudoStatic
 
 class GetList:
@@ -231,6 +231,7 @@ class GetDetail:
         for i in range(0, len(imgSoap.find_all('img'))):
             del imgSoap.find_all('img')[i]['onclick']
             del imgSoap.find_all('img')[i]['onmouseover']
+            del imgSoap.find_all('img')[i]['alt']
             down = DownLoadPicture(imgSoap.find_all('img')[i].get('original'))
             imageInfo, thumbInfo = down.handleDown()
             if not imageInfo:
@@ -242,7 +243,7 @@ class GetDetail:
             imgSoap.find_all('img')[i]['alt'] = title
         content = imgSoap.prettify()
         content = pseudoStatic.handleStatic(content)
-        content = InnerChain(content=content).replace()
+        content = InnerChain(content=content).replace2()
         return content
 
 # news = GetList("http://down.ali213.net/pcgame/", 5)

@@ -18,7 +18,7 @@ from ownModule.tool import Tool
 from endpoint.createData import CreateData
 from endpoint import getPageNumber
 from ownModule.mysql import MySQLSingle
-from endpoint.innerChain import InnerChain
+from endpoint.gameInnerChain import InnerChain
 from endpoint import pseudoStatic
 
 class GetList:
@@ -250,6 +250,7 @@ class GetDetail:
         for i in range(0, len(soap.find_all('img'))):
             del soap.find_all('img')[i]['onclick']
             del soap.find_all('img')[i]['onmouseover']
+            del soap.find_all('img')[i]['alt']
             down = DownLoadPicture(soap.find_all('img')[i].get('src'), objectName="gameali")
             imageInfo, thumbInfo = down.handleDown()
             path = host + imageInfo['path']
@@ -257,7 +258,7 @@ class GetDetail:
             soap.find_all('img')[i]['alt'] = title
         content = str(soap)
         content = pseudoStatic.handleStatic(content)
-        content = InnerChain(content=content).replace()
+        content = InnerChain(content=content).replace2()
         return content
 # news = GetList("http://www.ali213.net/news/game/", 5)
 # news.main()
