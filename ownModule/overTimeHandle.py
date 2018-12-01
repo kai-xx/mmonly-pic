@@ -11,7 +11,7 @@ def main(check = True, objectName=None):
     if check == False:
         return None
     else:
-        days = 20
+        days = 30
         objName = objectName if objectName else "mmonly-pic"
         objectDir = file.objectPath + objName
 
