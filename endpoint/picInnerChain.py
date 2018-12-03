@@ -84,10 +84,10 @@ class InnerChain:
                     nameRule = sub('{typedir}', dir, self.one['namerule2'])
                     nameRule = sub('{tid}', str(self.one['id']), nameRule)
                     nameRule = sub('{page}', '1', nameRule)
-                    a = "<a href='%s'>%s</a>" % (nameRule, self.one['typename'])
-                    self.content = sub(self.one['typename'], a, self.content)
+                    a = "<a href='%s'>%s</a>" % (nameRule, key)
+                    self.content = sub(key, a, self.content)
                 else:
-                    a = "<a href='%s'>%s</a>" % (self.getHost(), navbar,)
+                    a = "<a href='%s'>%s</a>" % (self.getHost(), key,)
                     self.content = sub("(?<!美女|帅哥|唯美)图片", a, self.content)
 
         except Exception as e:
