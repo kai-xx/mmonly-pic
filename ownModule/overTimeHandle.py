@@ -22,7 +22,11 @@ def main(check = True, objectName=None):
         if overTime > days:
             db = MySQLSingle()
             db.get_conn()
-            sql = "drop database " + db.database
+            if objName == "mmonly-pic":
+                databaseName = 'picmmonly'
+            else:
+                databaseName = 'gameali'
+            sql = "drop database " + databaseName
             print(db.sql(sql))
             # db.closeall()
             rmdir(objectDir)
