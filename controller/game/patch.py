@@ -251,12 +251,16 @@ class GetDetail:
             imageInfo, thumbInfo = down.handleDown()
             path = host + imageInfo['path']
             imgSoap.find_all('img')[i]['src'] = path
-            imgSoap.find_all('img')[i]['alt'] = title
         resultHtml = str(imgSoap) + downHtml
         res = BeautifulSoup(resultHtml)
         content = res.prettify()
         content = pseudoStatic.handleStatic(content)
         content = InnerChain(content=content).replace2()
+        soapAlt = BeautifulSoup(content, "lxml")
+        for i in range(0, len(soapAlt.find_all('img'))):
+            soapAlt.find_all('img')[i]['alt'] = title
+            soapAlt.find_all('img')[i]['style'] = "max-width: 712px;"
+        content = str(soapAlt)
         return content
 
 # news = GetList("http://down.ali213.net/pcgame/", 5)

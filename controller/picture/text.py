@@ -240,10 +240,13 @@ class GetDetail:
             path = host + imageInfo['path']
             imgSoap.find_all('img')[i]['original'] = path
             imgSoap.find_all('img')[i]['src'] = path
-            imgSoap.find_all('img')[i]['alt'] = title
         content = imgSoap.prettify()
         content = pseudoStatic.handleStatic(content)
         content = InnerChain(content=content).replace2()
+        soapAlt = BeautifulSoup(content, "lxml")
+        for i in range(0, len(soapAlt.find_all('img'))):
+            soapAlt.find_all('img')[i]['alt'] = title
+        content = str(soapAlt)
         return content
 
 # news = GetList("http://down.ali213.net/pcgame/", 5)
