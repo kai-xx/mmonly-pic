@@ -15,7 +15,7 @@ def setHtml():
         host = config['value']
     else:
         host = "http://127.0.0.1"
-    sql2 = "select id,title from " + prefix + "archives where ismake=-1 and typeid=4"
+    sql2 = "select id,title from " + prefix + "archives where ismake=-1"
     list = db.getall(sql2)
     if len(list) == 0:
         return
