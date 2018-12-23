@@ -115,13 +115,11 @@ def worke(className):
     elif className == "ids":
         idsThread()
 
-code = overTimeHandle.main(True, objectName="gameali")
-if code != 100200:
-    threads = ["news", "down", "patch", "qqvs", "vr1", "vr2", "mgame", "ids"]
-    #  开启线程
-    thres = [Thread(target=worke, args=(t,))
-                for t in threads]
-    # 开始执行线程
-    [thr.start() for thr in thres]
-    # 等待线程执行结束
-    [thr.join() for thr in thres]
+threads = ["news", "down", "patch", "qqvs", "vr1", "vr2", "mgame", "ids"]
+#  开启线程
+thres = [Thread(target=worke, args=(t,))
+            for t in threads]
+# 开始执行线程
+[thr.start() for thr in thres]
+# 等待线程执行结束
+[thr.join() for thr in thres]

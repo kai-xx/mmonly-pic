@@ -18,21 +18,19 @@ def worke(url):
     # }
     # detail = GetDetail("http://www.mmonly.cc/mmtp/xgmn/281357.html", 1, listInfo)
     # detail.getHtml()
-code = overTimeHandle.main()
-if code != 100200:
-    navs =[
-        {'category': '美女图片', 'href': 'http://mmonly.cc/mmtp/'},
-        {'category': '帅哥图片', 'href': 'http://www.mmonly.cc/sgtp/'},
-        {'category': '唯美图片', 'href': 'http://www.mmonly.cc/wmtp/'},
-        {'category': '卡通漫画', 'href': 'http://www.mmonly.cc/ktmh/'},
-        {'category': '搞笑图片', 'href': 'http://www.mmonly.cc/gxtp/'},
-        {'category': '高清壁纸', 'href': 'http://www.mmonly.cc/gqbz/'},
-    ]
-    #  开启线程
-    thres = [Thread(target=worke, args=(nav['href'],))
-                for nav in navs]
-    # 开始执行线程
-    [thr.start() for thr in thres]
-    # 等待线程执行结束
-    [thr.join() for thr in thres]
-    # worke('http://mmonly.cc/mmtp/')
+navs =[
+    {'category': '美女图片', 'href': 'http://mmonly.cc/mmtp/'},
+    {'category': '帅哥图片', 'href': 'http://www.mmonly.cc/sgtp/'},
+    {'category': '唯美图片', 'href': 'http://www.mmonly.cc/wmtp/'},
+    {'category': '卡通漫画', 'href': 'http://www.mmonly.cc/ktmh/'},
+    {'category': '搞笑图片', 'href': 'http://www.mmonly.cc/gxtp/'},
+    {'category': '高清壁纸', 'href': 'http://www.mmonly.cc/gqbz/'},
+]
+#  开启线程
+thres = [Thread(target=worke, args=(nav['href'],))
+            for nav in navs]
+# 开始执行线程
+[thr.start() for thr in thres]
+# 等待线程执行结束
+[thr.join() for thr in thres]
+# worke('http://mmonly.cc/mmtp/')
