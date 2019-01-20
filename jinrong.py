@@ -55,18 +55,18 @@ def shareThread():
     # detail = GetMoneyDetail(listInfo['detail-href'], 5, listInfo)
     # detail.getHtml()
 def worke(className):
-    # if className == "finance":
-    #     financeThread()
-    # if className == "stock":
-    #     stockThread()
-    # if className == "money":
-    #     moneyThread()
-    # if className == "metal":
-    #     metalThread()
+    if className == "finance":
+        financeThread()
+    if className == "stock":
+        stockThread()
+    if className == "money":
+        moneyThread()
+    if className == "metal":
+        metalThread()
     if className == "share":
         shareThread()
 
-code = overTimeHandle.main(False, objectName="jinrong")
+code = overTimeHandle.main(True, "jinrong", 2019, 2, 1, 40)
 if code != 100200:
     threads = ["finance", 'stock', 'money', 'metal', 'share']
     #  开启线程
