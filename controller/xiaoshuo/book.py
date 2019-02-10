@@ -80,7 +80,6 @@ class GetList:
                     print("小说名称为:", title, "作者为:", author, "数据不存在，开始获取详情")
                     detail = GetDetail(detailHref, self.waitTime, list)
                     detail.getHtml()
-                    return
                 else:
                     print("小说名称为:", title, "作者为:", author, "数据已经存在，跳过")
         except Exception as e:
@@ -114,7 +113,6 @@ class GetList:
 
         print("--------", "开始获取图文列表信息", "--------")
         self.getHtml(self.baseUrl, 1)
-        return
         self.waitForGetAllData()
         print("--------", "结束获取图文列表信息，共获取到", self.count, "条数据--------")
         self.brower.quit()
