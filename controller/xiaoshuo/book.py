@@ -84,7 +84,7 @@ class GetList:
                 else:
                     print("小说名称为:", title, "作者为:", author, "数据已经存在，跳过")
             except Exception as e:
-                print("页面抓取异常，没有返回信息，链接为：", self.baseUrl, "，错误信息为：", e)
+                print("列表-页面抓取异常，没有返回信息，链接为：", self.baseUrl, "，错误信息为：", e)
                 continue
 
 
@@ -130,6 +130,7 @@ class GetDetail:
         self.wait = None
         self.count = 0
     def getHtml(self):
+        print('开始抓取小说信息，URL为：', self.baseUrl)
         brower = Brower().exem()
         brower.get(self.baseUrl)
         wait = WebDriverWait(brower, self.waitTime)
@@ -142,6 +143,7 @@ class GetDetail:
             score = fatHtml('#score1').text()
             if not score:
                 score = random.randint(6, 9)
+            print('开始循环获取小说章节信息')
             book = None
             category = None
             chapter = None
@@ -156,14 +158,17 @@ class GetDetail:
                     'title': title
                 })
                 if i == 0:
+                    print('首次写入小说以及小说章节信息')
                     book, category, chapter = self.getMainHtml(url, score)
                 else:
+                    print('写入小说小说章节信息')
                     self.getNextHtml(url, book, category, chapter)
                 i += 1
             brower.quit()
         except Exception as e:
-            print("页面抓取异常，没有返回信息，链接为：", self.baseUrl, "，错误信息为：", e)
+            print("小说-页面抓取异常，没有返回信息，链接为：", self.baseUrl, "，错误信息为：", e)
     def getMainHtml(self, url, score):
+        print('开始首次写入小说以及小说章节信息')
         brower = Brower().exem()
         brower.get(url)
         html = brower.page_source
@@ -215,6 +220,7 @@ class GetDetail:
                     'classname': categorys[key],
                     'pid': 0,
                 }
+                print('开始写入一级栏目信息')
                 category1 = create.checkClassify(categorys[key])
                 if category1 == None:
                     category1 = create.insertClassify(list1)
@@ -224,6 +230,7 @@ class GetDetail:
                     'classname': categorys[key],
                     'pid': category1,
                 }
+                print('开始写入二级栏目信息')
                 category2 = create.checkClassify(categorys[key])
                 if category2 == None:
                     category2 = create.insertClassify(list2)
@@ -233,6 +240,7 @@ class GetDetail:
         if not thumbInfo:
             thumbInfo = imageInfo
         # 写入小说
+        print('开始首次写入小说信息')
         bookList = {
             'catid': category2,
             'bookname': self.listInfo['title'],
@@ -248,6 +256,7 @@ class GetDetail:
         if book == None:
             book = create.insertBook(bookList)
         # 写入章节
+        print('开始首次写入小说章节信息')
         chapterList = {
             'bookid': book,
             'catid': category2,
@@ -263,10 +272,12 @@ class GetDetail:
         if chapter == None:
             chapter = create.inserChapter(chapterList)
         # 更新评分
+        print('开始更新评分')
         create.updateBookStars(book, int(score))
         brower.quit()
         return book, category2, chapter
     def getNextHtml(self, url, book, category, chapter):
+        print('开始写入小说以及小说章节信息')
         brower = Brower().exem()
         brower.get(url)
         html = brower.page_source
@@ -281,6 +292,7 @@ class GetDetail:
         }
         create = CreateData('xiaoshuo', "xs_")
         # 写入章节
+        print('开始写入小说章节信息')
         chapterList = {
             'bookid': book,
             'catid': category,
