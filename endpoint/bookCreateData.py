@@ -62,6 +62,8 @@ class CreateData:
             'description': list['classname'],
             'Submit': '增加栏目'
         }
+        print("写入栏目，URL为：%s，数据为" % (url, ))
+        print(payload)
         r = requests.get(url, params=payload)
         return r.json()['id']
     def insertBook(self, list):
@@ -80,6 +82,8 @@ class CreateData:
             'body': list['body'],
             'Submit': '保 存'
         }
+        print("写入文章，URL为：%s，数据为" % (url, ))
+        print(payload)
         r = requests.post(url, data=payload)
         return r.json()['id']
     def inserChapter(self, list):
@@ -89,6 +93,8 @@ class CreateData:
             'Submit': '保 存'
         }
         payload = dict(list, **payload)
+        print("写入章节，URL为：%s，数据为" % (url,))
+        print(payload)
         r = requests.post(url, data=payload)
         return r.json()['id']
     def updateBookStars(self, bid, totalvalue):
