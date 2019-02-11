@@ -20,7 +20,7 @@ from ownModule.mysql import MySQLSingle
 from ownModule.brower import Brower
 from endpoint.picInnerChain import InnerChain
 from endpoint import pseudoStatic
-
+import sys
 class GetList:
     def __init__(self, baseUrl, waitTime, host):
         self.host = host
@@ -50,7 +50,7 @@ class GetList:
             for item in items:
                 if self.count > getPageNumber.getCount():
                     print("本栏目已经获取", self.count, "条记录，目前允许最大获取数量为：", getPageNumber.getCount())
-                    exit()
+                    sys.exit()
                 title = item.children().eq(-1).text()
                 if not title:
                     continue
@@ -186,10 +186,10 @@ class GetDetail:
         category2 = 0
         for key in range(0, len(categorys)):
             if key == 0:
-                category1 = create.checkAndInsertCate(categorys[key], 0, 1)
+                category1 = create.checkAndInsertCate(categorys[key], 0, 1, jr=1)
                 print(category1)
             if key == 1:
-                category2 = create.checkAndInsertCate(categorys[key], category1, 1)
+                category2 = create.checkAndInsertCate(categorys[key], category1, 1, jr=1)
         # 下载图片 图文获取缩略图
         down = DownLoadPicture(self.listInfo['thumb-img'], True, objectName='jinrong')
         imageInfo, thumbInfo = down.handleDown()

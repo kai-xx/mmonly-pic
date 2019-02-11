@@ -10,7 +10,7 @@ class CreateData:
         self.db = MySQLSingle()
         self.db.get_conn(databaseName)
         self.prefix = prefix
-    def checkAndInsertCate(self, cateName, pid, channeltype):
+    def checkAndInsertCate(self, cateName, pid, channeltype, jr=0):
         cateName = cateName.strip()
         sql = "select id from "+ self.prefix +"arctype where typename='%s' and reid=%d" % (cateName, pid)
         cateInfo = self.db.getone(sql)
@@ -31,8 +31,13 @@ class CreateData:
                 channelItem = "image"
             else:
                 channelItem = "article"
+
+            if jr == 1:
+                listItem = 'article'
+            else:
+                listItem = 'image'
             tempindex = "{style}/index_%s.htm" % (channelItem,)
-            # templist = "{style}/list_%s.htm" % (channelItem,)
+            templist = "{style}/list_%s.htm" % (listItem,)
             temparticle = "{style}/article_%s.htm" % (channelItem,)
             sql = "INSERT INTO `"+ self.prefix +"arctype` (`id`, `reid`, `topid`, `sortrank`, `typename`, `typedir`, " \
                   "`isdefault`, `defaultname`, `issend`, `channeltype`, `maxpage`, `corank`, `tempindex`, " \
@@ -40,8 +45,8 @@ class CreateData:
                   "`moresite`, `sitepath`, `siteurl`, `ishidden`, `cross`, `crossid`, `content`, `smalltypes`) VALUES " \
                   "(null, %d, %d, 0, '%s', '%s', " \
                   "0, 'index.html', 1, %d, -1, 0, '%s', " \
-                  "'{style}/list_image.htm', '%s', '{typedir}/{Y}{M}{D}/{aid}.html', '{typedir}/list_{tid}_{page}.html', 'default', '', '', '%s'" \
-                  ", 0, '', '', 0, 0, '0', '', '')" % (pid, pid, cateName, typedir, channeltype, tempindex, temparticle, cateName)
+                  "'%s', '%s', '{typedir}/{Y}{M}{D}/{aid}.html', '{typedir}/list_{tid}_{page}.html', 'default', '', '', '%s'" \
+                  ", 0, '', '', 0, 0, '0', '', '')" % (pid, pid, cateName, typedir, channeltype, tempindex, templist, temparticle, cateName)
             id = self.db.add(sql)
             print("导航--", cateName, "--写入成功，导航ID为：", id)
             if not id:
