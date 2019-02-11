@@ -51,7 +51,7 @@ class CreateData:
             host = "http://127.0.0.1"
         return host
     def insertClassify(self, list):
-        url = self.getHost() + '/dede/spider_story_catalog.php'
+        url = self.getHost() + '/xs/spider_story_catalog.php'
         payload = {
             'action': 'add',
             'classname': list['classname'],
@@ -65,7 +65,7 @@ class CreateData:
         r = requests.get(url, params=payload)
         return r.json()['id']
     def insertBook(self, list):
-        url = self.getHost() + '/dede/spider_story_add_action.php'
+        url = self.getHost() + '/xs/spider_story_add_action.php'
         payload = {
             'catid': list['catid'],
             'bookname': list['bookname'],
@@ -83,7 +83,7 @@ class CreateData:
         r = requests.post(url, data=payload)
         return r.json()['id']
     def inserChapter(self, list):
-        url = self.getHost() + '/dede/spider_story_add_content_action.php'
+        url = self.getHost() + '/xs/spider_story_add_content_action.php'
         payload = {
             'booktype': 0,
             'Submit': '保 存'
