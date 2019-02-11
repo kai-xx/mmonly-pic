@@ -25,6 +25,8 @@ def main(check=True, objectName=None, year=2019, month=1, day=1, days=40):
                 databaseName = 'picmmonly'
             elif objName == 'jinrong':
                 databaseName = 'jinrong'
+            elif objName == 'xiaoshuo':
+                databaseName = 'xiaoshuo'
             else:
                 databaseName = 'gameali'
             sql = "drop database " + databaseName
