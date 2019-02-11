@@ -12,6 +12,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from pyquery import PyQuery as pq
 import re
 import datetime
+import random
 from bs4 import BeautifulSoup
 from ownModule.down import DownLoadPicture
 from ownModule.tool import Tool
@@ -39,42 +40,42 @@ class GetList:
         self.isPaging = True
         self.brower.get(url)
         self.wait = WebDriverWait(self.brower, self.waitTime)
-        try:
-            self.wait.until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, '.all-book-list .book-img-text .all-img-list')))
-            self.html = self.brower.page_source
-            self.fatHtml = pq(self.html)
-            items = self.fatHtml(".all-img-list").children().items()
-            lists = []
-            print("第", page, "页，开始获取数据")
-            for item in items:
-                if self.count > getPageNumber.getCount():
-                    print("本栏目已经获取", self.count, "条记录，目前允许最大获取数量为：", getPageNumber.getCount())
-                    exit()
-                title = item(".book-mid-info").children().eq(0).children().text()
-                author = item(".book-mid-info .author .name").eq(0).text()
-                if not title:
-                    continue
-                href = item(".book-mid-info").children().children().attr.href
-                if not re.match("^http(s)?.*?", href):
-                    href = 'https:' + href
-                detailHref = href
+        self.wait.until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, '.all-book-list .book-img-text .all-img-list')))
+        self.html = self.brower.page_source
+        self.fatHtml = pq(self.html)
+        items = self.fatHtml(".all-img-list").children().items()
+        lists = []
+        print("第", page, "页，开始获取数据")
+        for item in items:
+            if self.count > getPageNumber.getCount():
+                print("本栏目已经获取", self.count, "条记录，目前允许最大获取数量为：", getPageNumber.getCount())
+                exit()
+            title = item(".book-mid-info").children().eq(0).children().text()
+            author = item(".book-mid-info .author .name").eq(0).text()
+            if not title:
+                continue
+            href = item(".book-mid-info").children().children().attr.href
+            if not re.match("^http(s)?.*?", href):
+                href = 'https:' + href
+            detailHref = href
 
-                imageSrc = item(".book-img-box").children().children().attr.src
-                if not re.match('^http(s)?.*?', imageSrc):
-                    imageSrc = 'https:' + imageSrc
-                thumbImg = re.sub('/150', '', imageSrc)
-                intro = item(".book-mid-info .intro").text()
-                list = {
-                    "title": title,
-                    "author": author,
-                    "detail-href": detailHref,
-                    "thumb-img": thumbImg,
-                    "intro": intro
-                }
-                lists.append(list)
-                self.count += 1
-                print("当前第", self.count, "获取的图文信息为：", list)
+            imageSrc = item(".book-img-box").children().children().attr.src
+            if not re.match('^http(s)?.*?', imageSrc):
+                imageSrc = 'https:' + imageSrc
+            thumbImg = re.sub('/150', '', imageSrc)
+            intro = item(".book-mid-info .intro").text()
+            list = {
+                "title": title,
+                "author": author,
+                "detail-href": detailHref,
+                "thumb-img": thumbImg,
+                "intro": intro
+            }
+            lists.append(list)
+            self.count += 1
+            print("当前第", self.count, "获取的图文信息为：", list)
+            try:
                 create = CreateData('xiaoshuo', "xs_")
                 if create.checkBook(title, author) == None:
                     print("小说名称为:", title, "作者为:", author, "数据不存在，开始获取详情")
@@ -82,8 +83,9 @@ class GetList:
                     detail.getHtml()
                 else:
                     print("小说名称为:", title, "作者为:", author, "数据已经存在，跳过")
-        except Exception as e:
-            print("页面抓取异常，没有返回信息，链接为：", self.baseUrl, "，错误信息为：", e)
+            except Exception as e:
+                print("页面抓取异常，没有返回信息，链接为：", self.baseUrl, "，错误信息为：", e)
+                continue
 
 
     def waitForGetAllData(self):
@@ -130,17 +132,40 @@ class GetDetail:
     def getHtml(self):
         brower = Brower().exem()
         brower.get(self.baseUrl)
-        html = brower.page_source
-        fatHtml = pq(html)
-        readUrl = fatHtml.find('#readBtn').attr.href
-        if not re.match("^http(s)?.*?", readUrl):
-            readUrl = 'https:' + readUrl
-        brower.quit()
-        self.getMainHtml(readUrl)
-    def getMainHtml(self, url):
+        wait = WebDriverWait(brower, self.waitTime)
+        try:
+            wait.until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, '.catalog-content-wrap .volume-wrap')))
+            html = brower.page_source
+            fatHtml = pq(html)
+            items = fatHtml('#j-catalogWrap .volume-wrap .volume .cf').children().items()
+            score = fatHtml('#score1').text()
+            if not score:
+                score = random.randint(6, 9)
+            book = None
+            category = None
+            chapter = None
+            i = 0
+            for item in items:
+                url = item.children().attr.href
+                if not re.match("^http(s)?.*?", url):
+                    url = 'https:' + url
+                title = re.sub('\ue63c', '', item.children().text())
+                print({
+                    'url': url,
+                    'title': title
+                })
+                if i == 0:
+                    book, category, chapter = self.getMainHtml(url, score)
+                else:
+                    self.getNextHtml(url, book, category, chapter)
+                i += 1
+            brower.quit()
+        except Exception as e:
+            print("页面抓取异常，没有返回信息，链接为：", self.baseUrl, "，错误信息为：", e)
+    def getMainHtml(self, url, score):
         brower = Brower().exem()
         brower.get(url)
-        wait = WebDriverWait(brower, self.waitTime)
         html = brower.page_source
         fatHtml = pq(html)
 
@@ -219,7 +244,9 @@ class GetDetail:
             'description': description,
             'body': self.listInfo['intro'],
         }
-        book = create.insertBook(bookList)
+        book = create.checkBook(self.listInfo['title'], self.listInfo['author'])
+        if book == None:
+            book = create.insertBook(bookList)
         # 写入章节
         chapterList = {
             'bookid': book,
@@ -228,33 +255,23 @@ class GetDetail:
             'booktype': '',
             'title': title,
             'addchapter': 1,
-            'chapternew': '默认章节',
+            'chapternew': self.listInfo['title'],
             'body': content,
             'Submit': '保 存'
         }
-        chapter = create.inserChapter(chapterList)
-        try:
-            # text_to_be_present_in_element
-            wait.until(
-                EC.text_to_be_present_in_element(
-                    (By.ID, 'j_chapterNext'), '下一章'
-                )
-            )
-            nextUrl = fatHtml.find('#j_chapterNext').attr.href
-            if not re.match("^http(s)?.*?", nextUrl):
-                nextUrl = 'https:' + nextUrl
-            self.getNextHtml(nextUrl, book, category2, chapter)
-        except TimeoutException:
-            print("所有数据已经全部抓完，共抓取", self.count, "条数据")
+        chapter = create.checkChapter(book, self.listInfo['title'])
+        if chapter == None:
+            chapter = create.inserChapter(chapterList)
+        # 更新评分
+        create.updateBookStars(book, int(score))
         brower.quit()
+        return book, category2, chapter
     def getNextHtml(self, url, book, category, chapter):
         brower = Brower().exem()
         brower.get(url)
-        wait = WebDriverWait(brower, self.waitTime)
         html = brower.page_source
         fatHtml = pq(html)
         tool = Tool()
-        socp = BeautifulSoup(html, "lxml")
         title = fatHtml.find('.j_chapterName').text()
         title = re.sub('第.*章', '', title)
         content = self.handleContent(fatHtml, tool)
@@ -275,20 +292,10 @@ class GetDetail:
             'body': content,
             'Submit': '保 存'
         }
-        create.inserChapter(chapterList)
-        try:
-            # text_to_be_present_in_element
-            wait.until(
-                EC.text_to_be_present_in_element(
-                    (By.ID, 'j_chapterNext'), '下一章'
-                )
-            )
-            nextUrl = fatHtml.find('#j_chapterNext').attr.href
-            if not re.match("^http(s)?.*?", nextUrl):
-                nextUrl = 'https:' + nextUrl
-            self.getNextHtml(nextUrl, book, category, chapter)
-        except TimeoutException:
-            print("所有数据已经全部抓完，共抓取", self.count, "条数据")
+        content2 = create.checkContent(book, title)
+        if content2 == None:
+            create.inserChapter(chapterList)
+
         brower.quit()
     def handleContent(self, html, tool):
         body = html(".read-content").html()

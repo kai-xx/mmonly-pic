@@ -24,6 +24,24 @@ class CreateData:
             return classifyInfo['id']
         else:
             return None
+
+    def checkChapter(self, bookId, chaptername):
+        sql = "SELECT id,chapnum,chaptername FROM " + self.prefix +"story_chapter WHERE bookid=%d and chaptername='%s' ORDER BY chapnum DESC" % (bookId, chaptername)
+        chapterInfo = self.db.getone(sql)
+        if chapterInfo:
+            print("小说ID为--", bookId,"章节名称为--", chaptername, "--已经存在，栏目ID为：", chapterInfo['id'])
+            return chapterInfo['id']
+        else:
+            return None
+
+    def checkContent(self, bookId, title):
+        sql = "select * from " + self.prefix +"story_content WHERE bookid=%d and title='%s'" % (bookId, title)
+        contentInfo = self.db.getone(sql)
+        if contentInfo:
+            print("小说ID为--", bookId, "章节名称为--", title, "--已经存在，栏目ID为：", contentInfo['id'])
+            return contentInfo['id']
+        else:
+            return None
     def getHost(self):
         sql = "select * from  " + self.prefix + "sysconfig where varname='cfg_basehost'"
         config = self.db.getone(sql)
@@ -73,6 +91,14 @@ class CreateData:
         payload = dict(list, **payload)
         r = requests.post(url, data=payload)
         return r.json()['id']
+    def updateBookStars(self, bid, totalvalue):
+        sql = 'UPDATE xs_story_bookstars SET totalvalue=%d,totalvotes=1 WHERE bid=%d' %(totalvalue, bid)
+        result = self.db.save(sql, bid)
+        if result:
+            print("小说ID为--", bid, "评分更新成功")
+            return result
+        else:
+            return None
     def getThumbImage(self, imageInfo, thumbInfo):
         thumb = ""
         if len(thumbInfo) > 0:
