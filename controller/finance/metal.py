@@ -185,10 +185,10 @@ class GetDetail:
         category2 = 0
         for key in range(0, len(categorys)):
             if key == 0:
-                category1 = create.checkAndInsertCate(categorys[key], 0, 1)
+                category1 = create.checkAndInsertCate(categorys[key], 0, 1, jr=1)
                 print(category1)
             if key == 1:
-                category2 = create.checkAndInsertCate(categorys[key], category1, 1)
+                category2 = create.checkAndInsertCate(categorys[key], category1, 1, jr=1)
         # 下载图片 图文获取缩略图
         down = DownLoadPicture(self.listInfo['thumb-img'], True, objectName='jinrong')
         imageInfo, thumbInfo = down.handleDown()

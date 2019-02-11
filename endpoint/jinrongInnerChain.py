@@ -47,15 +47,6 @@ class InnerChain:
             return self.content
 # ''
 # -------第二版关键词关联------------
-#     游戏
-#     游戏 ---首页
-#     硬件 ---游戏硬件
-#     资讯 ---资讯中心
-#     攻略 ---攻略
-#     单机游戏 ---单机游戏
-#     VR --- VR频道
-#     手机游戏 - --手机游戏
-#     补丁 - --补丁
 # ''
     def getOne(self, name=None):
         if name == None:
@@ -67,19 +58,16 @@ class InnerChain:
             return self.content
         try:
             navbars = {
-                "游戏": "首页",
-                "硬件": "游戏硬件",
-                "资讯": "资讯中心",
-                "攻略": "攻略",
-                "单机游戏": "单机游戏",
-                "VR": " VR频道",
-                "手机游戏": "手机游戏",
-                "补丁": "补丁"
+                "金融": "首页",
+                "财经": "财经频道",
+                "理财": "理财频道",
+                "股票": "股票频道",
+                "金属": "黄金频道",
             }
             print(navbars.items())
             for key, navbar in navbars.items():
                 print(key)
-                if key != "游戏":
+                if key != "金融":
                     self.getOne(navbar)
                     if not self.one:
                         continue
@@ -91,7 +79,7 @@ class InnerChain:
                     self.content = sub(key, a, self.content)
                 else:
                     a = '<a href="%s">%s</a>' % (self.getHost(), key,)
-                    self.content = sub("(?<!手机|单机)游戏", a, self.content)
+                    self.content = sub("金融", a, self.content)
 
         except Exception as e:
             print("文章内容替换内链接发生错误，错误信息为：", e)
