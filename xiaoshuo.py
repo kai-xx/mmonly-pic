@@ -38,7 +38,7 @@ if code != 100200:
         # 历史，
         'https://www.qidian.com/all?chanId=5&orderId=&page=1&style=1&pageSize=20&siteid=1&pubflag=0&hiddenField=0',
         # 体育，
-        'https://www.qidian.com/all?chanId=8&orderId=&page=1&style=1&pageSize=20&siteid=1&pubflag=0&hiddenField=0'
+        'https://www.qidian.com/all?chanId=8&orderId=&page=1&style=1&pageSize=20&siteid=1&pubflag=0&hiddenField=0',
         # 灵异，
         'https://www.qidian.com/all?chanId=10&orderId=&page=1&style=1&pageSize=20&siteid=1&pubflag=0&hiddenField=0',
         # 二次元
