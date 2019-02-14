@@ -89,7 +89,6 @@ class GetList:
 
 
     def waitForGetAllData(self):
-        url = 'https://www.qidian.com/all?orderId=&style=1&pageSize=20&siteid=1&pubflag=0&hiddenField=0&page='
         page = 2
         if self.html == None:
             return
@@ -103,7 +102,7 @@ class GetList:
             if page > int(pageNum):
                 return
             try:
-                baseUrl = url + str(page)
+                baseUrl = re.sub('page=1', 'page='+str(page), self.baseUrl)
                 self.getHtml(baseUrl, page)
                 page += 1
             except TimeoutException:
