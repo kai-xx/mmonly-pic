@@ -78,8 +78,8 @@ class CreateData:
             'author': list['author'],
             'pubdate': list['pubdate'],
             'click': 0,
-            'keywords': list['keywords'],
-            'description': list['description'],
+            'keywords': list['bookname'],
+            'description': list['bookname'],
             'body': list['body'],
             'Submit': '保 存'
         }
