@@ -49,6 +49,7 @@ class CreateData:
             host = config['value']
         else:
             host = "http://127.0.0.1"
+
         return host
     def insertClassify(self, list):
         url = self.getHost() + '/xs/spider_story_catalog.php'
@@ -58,8 +59,8 @@ class CreateData:
             'pid': list['pid'],
             'rank': 0,
             'booktype': 0,
-            'keywords': list['classname'],
-            'description': list['classname'],
+            'keywords': list['keywords'],
+            'description': list['description'],
             'Submit': '增加栏目'
         }
         print("写入栏目，URL为：%s，数据为" % (url, ))
@@ -105,6 +106,14 @@ class CreateData:
             return result
         else:
             return None
+
+    def updateCate(self,id , seotitle, keyword, description):
+        sql = "UPDATE xs_story_catalog SET seotitle='%s',keywords='%s',description='%s' WHERE id=%d" %(seotitle, keyword, description, id)
+
+        result = self.db.save(sql, id)
+        if result:
+            print("栏目ID为--", id, "评分TDK更新成功")
+            return result
     def getThumbImage(self, imageInfo, thumbInfo):
         thumb = ""
         if len(thumbInfo) > 0:
@@ -118,4 +127,5 @@ class CreateData:
                     break
 
         return thumb
+
 
