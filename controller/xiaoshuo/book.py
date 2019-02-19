@@ -195,6 +195,8 @@ class GetDetail:
             text = categoryHtml.string
             category = text.replace(">", "")
             category = category.replace("\n", "")
+            if category == "悬疑灵异":
+                category = re.sub('悬疑灵异', '灵异', category)
             category = category.strip()
             categorys.append(category)
         title = fatHtml.find('.j_chapterName').text()
