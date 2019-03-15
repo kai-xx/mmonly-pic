@@ -8,8 +8,10 @@ def handleStatic(content):
     try:
         url = 'http://www.naipan.com/open/weiyuanchuang/towei.html'
         postData = {
-            'regname': "402202330@qq.com",
-            'regsn': "9Neqm72/zIWkhlmFO5pvKZCdh0XB2UF+W56B1uFRcZQ=",
+            # 'regname': "402202330@qq.com",
+            # 'regsn': "9Neqm72/zIWkhlmFO5pvKZCdh0XB2UF+W56B1uFRcZQ=",
+            'regname': "1218763958@qq.com",
+            'regsn': "x0vSrtcxdI77+6/5tXEpqNj+whMkwSFc4Hmq0NfguQk=",
             'content': content
         }
         print("处理伪原创，链接为：%s，内容为：%s" % (url, postData))
